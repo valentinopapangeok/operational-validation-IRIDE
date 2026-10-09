@@ -212,7 +212,7 @@ class LandsatProvider:
         return receipt
 
 
-def refresh_references(config,base,workdir,as_of,download=True,max_scenes=None,workers=2):
+def refresh_references(config,base,workdir,as_of,download=True,max_scenes=None,workers=2,requests=None):
     provider=LandsatProvider(config,base)
     start=config['campaign']['start']
     if not start or not config['campaign']['end']:
@@ -228,7 +228,10 @@ def refresh_references(config,base,workdir,as_of,download=True,max_scenes=None,w
     print(f'Landsat search: {len(search["candidates"])} eligible scenes; {search["platform_counts"]}',flush=True)
     if not download:
         return search
-    selected=search['candidates'][:max_scenes] if max_scenes else search['candidates']
+    candidates=search['candidates']
+    if requests is not None:
+        candidates=[item for item in candidates if any((item['properties']['datetime'][:10],domain) in requests for domain in item['validation:domains'])]
+    selected=candidates[:max_scenes] if max_scenes else candidates
     index_path=workdir/'cache'/'reference'/'landsat'/'index.json'
     old=json.loads(index_path.read_text(encoding='utf-8')) if index_path.exists() else {'scenes':[]}
     records={r['scene_id']:r for r in old['scenes']}
@@ -245,6 +248,8 @@ def refresh_references(config,base,workdir,as_of,download=True,max_scenes=None,w
                 'updated_at':datetime.now(timezone.utc).isoformat(),'scenes':list(records.values())})
             print(f'Landsat {item["id"]}: {receipt["status"]}',flush=True)
     search['downloaded_scenes']=sum(records.get(i['id'],{}).get('status')=='DOWNLOADED' for i in selected)
+    search['new_downloaded_scenes']=sum(records.get(i['id'],{}).get('status')=='DOWNLOADED' and any(not a.get('reused',False) for a in records[i['id']].get('assets',{}).values()) for i in selected)
+    search['reused_scenes']=search['downloaded_scenes']-search['new_downloaded_scenes']
     search['download_errors']=sum(records.get(i['id'],{}).get('status')!='DOWNLOADED' for i in selected)
     save_json(workdir/'inventory'/'landsat_search.json',search)
     return search

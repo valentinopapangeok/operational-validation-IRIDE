@@ -80,3 +80,7 @@ Exit codes:
 - Argparse also uses `2` for invalid command arguments; distinguish this by its usage/error message.
 
 Never run concurrent launches sharing a manifest/workdir. Back up the registry and configuration before maintenance. Remote connectors list/read objects; they never modify production buckets.
+
+## Operational campaign launch
+
+`python main.py` (no parameters) and `iride-validate --run` perform production preflight, campaign-wide discovery, selective verified downloads, reference refresh, processing and report generation. See [PyCharm guide](PYCHARM.md). Specialist/local modes retain their existing behavior. A failed preflight makes no registry changes; individual provider or delivery failures are recorded and do not stop other deliveries.

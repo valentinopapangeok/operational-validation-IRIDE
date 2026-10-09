@@ -57,3 +57,7 @@ The thermal adapter enforces the documented draft Landsat QA/support filters. Ot
 ## Thermal adapters
 
 The Landsat 8/9 adapter is registered for 01/02/10/11. Explicit `--landsat` launches populate the shared reference cache and matching S5 deliveries; ordinary runs compare local data. `DIAGNOSTIC` preserves metrics and evidence but writes no campaign samples; `OUTSIDE_CAMPAIGN` excludes deliveries before October. Details and scientific limitations are in [LANDSAT.md](LANDSAT.md).
+
+## Operational campaign launch
+
+`python main.py` (no parameters) and `iride-validate --run` perform production preflight, campaign-wide discovery, selective verified downloads, reference refresh, processing and report generation. See [PyCharm guide](PYCHARM.md). Specialist/local modes retain their existing behavior. A failed preflight makes no registry changes; individual provider or delivery failures are recorded and do not stop other deliveries.

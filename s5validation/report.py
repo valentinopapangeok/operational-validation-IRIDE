@@ -37,6 +37,11 @@ def generate(registry, config, workdir, product=None):
     inventory_path = workdir/'inventory'/'latest_products.json'
     downloads = json.loads(downloads_path.read_text(encoding='utf-8')) if downloads_path.exists() else {}
     inventory = json.loads(inventory_path.read_text(encoding='utf-8')) if inventory_path.exists() else {}
+    campaign_path=workdir/'inventory'/'campaign_products.json'
+    if campaign_path.exists():
+        campaign_inventory=json.loads(campaign_path.read_text(encoding='utf-8'))
+        inventory={'items':inventory.get('items',[])+campaign_inventory.get('items',[])}
+        downloads={'receipts':downloads.get('receipts',[])+campaign_inventory.get('receipts',[])}
     receipts = {r['product']:r for r in downloads.get('receipts',[])}
     latest = {i['product']:i for i in inventory.get('items',[])}
     checks_path=workdir/'inventory'/'raster_checks.json'
@@ -71,6 +76,10 @@ def generate(registry, config, workdir, product=None):
     for row in rows:
         table += '<tr>'+''.join(f'<td>{esc(row[k])}</td>' for k in ('product','delivery_id','revision','acquired_at','status','reference_status','reason'))+f'<td><pre>{esc(json.dumps(json.loads(row["metrics"]),indent=2))}</pre></td></tr>'
     evidence = ''
+    operational_path=workdir/'inventory'/'operational_run.json'
+    if operational_path.exists():
+        operational=json.loads(operational_path.read_text(encoding='utf-8'))
+        evidence += '<section><h2>Latest operational run</h2><p>Processing status is separate from scientific acceptance and campaign coverage.</p><pre>'+esc(json.dumps(operational,indent=2))+'</pre></section>'
     search_path = workdir/'inventory'/'landsat_search.json'
     if search_path.exists():
         search = json.loads(search_path.read_text(encoding='utf-8'))

@@ -12,3 +12,10 @@
 - Scientific metric helpers, revisioned SQLite evidence and HTML/plot reports.
 - Offline synthetic smoke test, fixture-based tests and cross-platform CI.
 - Installation, credential, runbook, configuration and product-extension guides.
+
+## Operational campaign orchestration
+
+- Added no-argument `main.py` for PyCharm and `--run` for the CLI.
+- Added all-campaign discovery with date boundaries and highest numeric versions, selective downloads, pending retries, reference-date/domain filtering, preflight and error isolation.
+- Preserved scientific states, method-aware thermal cache, offline modes and accepted-sample safeguards.
+- Added console/JSON run summary, report integration and PyCharm guide.

@@ -18,6 +18,7 @@ def main(argv=None,default_base=None):
     parser.add_argument('--base-dir',type=Path,help='Resolve paths inside configuration against this repository root')
     parser.add_argument('--credentials-file',type=Path,help='External production credentials.env; see docs/CREDENTIALS.md')
     modes = parser.add_mutually_exclusive_group()
+    modes.add_argument('--run',action='store_true',help='Discover all campaign deliveries, download needed inputs, validate and report')
     modes.add_argument('--status',action='store_true',help='Show locally stored coverage; no downloads')
     modes.add_argument('--report',action='store_true',help='Regenerate local HTML report')
     modes.add_argument('--download-latest',action='store_true',help='Download latest acquisition per product from production')
@@ -49,9 +50,15 @@ def main(argv=None,default_base=None):
             raise ValueError('Unknown product')
         if config['delivery'].get('manifest')=='validation/deliveries.json':
             config['delivery']['manifest']=str(args.workdir/'deliveries.json')
+        if args.run:
+            from .operational import preflight
+            client=preflight(config,base,args.product)
         from .bootstrap import initialize
         initialize(config,base,args.workdir)
         registry = Registry(args.workdir/'validation.db')
+        if args.run:
+            from .operational import execute
+            operational_run=execute(registry,config,base,args.workdir,client,args.product,args.as_of,args.max_scenes)
         if args.landsat or args.landsat_search:
             from datetime import datetime
             from zoneinfo import ZoneInfo
@@ -65,7 +72,7 @@ def main(argv=None,default_base=None):
             from s5validation.downloads import sync_latest
             download_run = sync_latest(config,base,args.workdir,args.product,args.inventory_only)
             print('Production inventory errors: '+str(len(download_run['errors'])))
-        if not args.status and not args.report and not args.inventory_only and not args.landsat_search:
+        if not args.run and not args.status and not args.report and not args.inventory_only and not args.landsat_search:
             summary = run(registry,config,base,args.workdir,args.product)
             print('Run: '+str(summary))
         print(status(registry,config,args.product))
@@ -74,6 +81,9 @@ def main(argv=None,default_base=None):
             print(f'Report: {report.resolve()}')
             if args.open_report:
                 webbrowser.open(report.resolve().as_uri())
+        if args.run:
+            print('RUN COMPLETED WITH ERRORS' if operational_run['errors'] else 'RUN COMPLETED SUCCESSFULLY')
+            return 2 if operational_run['errors'] else 0
         if args.download_latest or args.inventory_only:
             if download_run['errors'] or any(r['status'] != 'DOWNLOADED' for r in download_run.get('receipts',[])):
                 return 2

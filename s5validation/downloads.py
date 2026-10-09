@@ -104,6 +104,10 @@ def latest_files(client,bucket,product,prefix='ar_delivery/',depth=0):
     if not primaries:
         return None
     acquired,version,primary,match = max(primaries,key=lambda x:(x[0],x[1]))
+    return delivery_item(bucket,product,prefix,listing,acquired,version,primary,match)
+
+
+def delivery_item(bucket,product,prefix,listing,acquired,version,primary,match):
     stem = primary['key'][:-4]
     style_stem = f'IRIDE-S_{product}_V{version}'
     chosen = [r for r in listing if r.get('type')=='file' and
@@ -228,3 +232,60 @@ def production_client(config,base):
         if not path.is_absolute():
             path=base/path
     return McProduction(settings.get('mc_alias','iride-prod'),credential_path(path,base))
+
+
+def campaign_files(client,bucket,product,start,end,prefix='ar_delivery/',depth=0):
+    """Walk every campaign partition; keep highest numeric version per timestamp."""
+    if depth>3:
+        raise ValueError('Unexpected production date hierarchy')
+    listing=client.list(bucket,prefix)
+    found=[]
+    best={}
+    for record in listing:
+        match=PRIMARY.fullmatch(record.get('key',''))
+        if record.get('type')!='file' or not match or match[1].upper()!=product:
+            continue
+        acquired=timestamp(match[2])
+        if not start<=datetime.fromisoformat(acquired)<end:
+            continue
+        version=int(match[3])
+        if acquired not in best or version>best[acquired][0]:
+            best[acquired]=(version,record,match)
+    for acquired,(version,record,match) in best.items():
+        found.append(delivery_item(bucket,product,prefix,listing,acquired,version,record,match))
+    for record in listing:
+        child=record.get('key','')
+        if record.get('type')!='folder' or not DATE_FOLDER.fullmatch(child):
+            continue
+        full=prefix+child
+        parts=dict(re.findall(r'(YEAR|MONTH|DAY)=(\d+)',full))
+        year=int(parts['YEAR']);month=int(parts.get('MONTH',1));day=int(parts.get('DAY',1))
+        lower=datetime(year,month,day,tzinfo=timezone.utc)
+        if 'DAY' in parts:
+            from datetime import timedelta
+            upper=lower+timedelta(days=1)
+        elif 'MONTH' in parts:
+            upper=datetime(year+(month==12),month%12+1,1,tzinfo=timezone.utc)
+        else:
+            upper=datetime(year+1,1,1,tzinfo=timezone.utc)
+        if lower<end and upper>start:
+            found.extend(campaign_files(client,bucket,product,start,end,full,depth+1))
+    return found
+
+
+def inventory_campaign(client,config,product=None):
+    start=datetime.fromisoformat(config['campaign']['start'].replace('Z','+00:00'))
+    end=datetime.fromisoformat(config['campaign']['end'].replace('Z','+00:00'))
+    found=[];errors=[]
+    for name in ([product] if product else config['products']):
+        try:
+            items=campaign_files(client,f'ou-{name.lower()}-prod',name,start,end)
+            # A timestamp may occur in multiple partitions. Select deterministically.
+            by_date={}
+            for item in sorted(items,key=lambda x:(x['version'],x['prefix'])):
+                by_date[item['acquired_at']]=item
+            found.extend(by_date.values())
+            print(f'{name}: {len(by_date)} campaign deliveries',flush=True)
+        except (OSError,ValueError,subprocess.TimeoutExpired) as exc:
+            errors.append({'product':name,'status':'INVENTORY_ERROR','reason':str(exc)})
+    return sorted(found,key=lambda x:(x['product'],x['acquired_at'])),errors

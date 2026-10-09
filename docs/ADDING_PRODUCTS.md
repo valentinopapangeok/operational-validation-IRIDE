@@ -10,7 +10,7 @@ Examples of required reference decisions: ERA5 accumulation-to-flux/time alignme
 
 ## 2. Implement the provider and adapter
 
-Copy `examples/product_adapter.py` to a new module under `s5validation/`; replace the skeleton's pending outcome with actual QA, collocation and metrics. Providers belong in `s5validation/references/` when reusable. Download references through an explicit mode or a clearly documented provider interface; ordinary local launches should stay reproducible and predictable.
+Copy `examples/product_adapter.py` to a new module under `s5validation/`; replace the skeleton's pending outcome with actual QA, collocation and metrics. Providers belong in `s5validation/references/` when reusable. For full operational runs, register a callable in `s5validation.operational.REFERENCE_REFRESHERS` keyed by adapter name. Its signature is `(config, base, workdir, deliveries)`; scope downloads to the supplied queue and reuse verified cache. The runner invokes it before local validation and isolates provider failures. Download references through an explicit mode or this provider interface; ordinary local launches should stay reproducible and predictable.
 
 Return `Outcome(status, reason, reference_status, samples, metrics, provenance)` from `validate(delivery, product_config, workdir)`. Delivery supplies product, stable ID, revision, local URI and timezone-aware acquisition date. See [Architecture](ARCHITECTURE.md).
 

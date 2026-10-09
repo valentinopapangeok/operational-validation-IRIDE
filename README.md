@@ -28,6 +28,18 @@ The synthetic smoke test runs the actual thermal adapter, collocation, metrics, 
 
 Windows and MinIO installation instructions are in [Installation](docs/INSTALLATION.md). The repository includes the exact land and marine AOI geometries and extracted validation-plan requirements. No private production data, caches, local absolute paths or real credentials are needed to clone and run the tests.
 
+## PyCharm: connect VPN and press Run
+
+After installing dependencies and MinIO `mc`, place the supplied private credential files in `credentials/`, connect the VPN, and run root **`main.py` with no arguments**. It discovers every campaign delivery, downloads inputs for implemented adapters, refreshes needed references, validates, and rebuilds the report. Paths are resolved from the repository, independent of the IDE working directory. See [PyCharm guide](docs/PYCHARM.md).
+
+```bash
+python main.py
+# Installed equivalent:
+iride-validate --run
+```
+
+Products 03–09 remain `PENDING_CONFIGURATION` until their scientific adapters are implemented. An operationally successful run does not imply accepted validation samples.
+
 ## Run against production
 
 Install MinIO **`mc`**, connect to the approved IRIDE network/VPN, and obtain read-only production access. Create the external credential file described in [Credentials](docs/CREDENTIALS.md); drop the privately supplied files into `credentials/bucket.env` and `credentials/downloaders.env` (automatically discovered, ignored by Git). Alternatively reuse an existing `iride-prod` MinIO alias.

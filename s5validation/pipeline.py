@@ -76,7 +76,7 @@ def check_outcome(outcome, cfg, campaign):
                 raise ValueError('GOSAT month does not meet the coverage requirement')
 
 
-def run(registry, config, base, workdir, product=None, adapters=None):
+def run(registry, config, base, workdir, product=None, adapters=None, identities=None):
     if adapters is None:
         from .adapters import register
         register(config,base)
@@ -88,6 +88,8 @@ def run(registry, config, base, workdir, product=None, adapters=None):
     new = sum(registry.discover(d) for d in discovered)
     processed = 0
     for row in registry.rows(product):
+        if identities is not None and (row['product'],row['delivery_id'],row['revision']) not in identities:
+            continue
         if row['status'] not in RETRYABLE:
             continue
         # Process only the latest discovered revision of a delivery.

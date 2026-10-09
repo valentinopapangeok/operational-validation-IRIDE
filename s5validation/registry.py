@@ -71,7 +71,9 @@ class Registry:
         return self.db.execute('''SELECT s.* FROM samples s JOIN deliveries d
             USING(product,delivery_id,revision) WHERE s.product=? AND d.status='COMPLETE'
             AND d.rowid=(SELECT MAX(new.rowid) FROM deliveries new
-              WHERE new.product=d.product AND new.delivery_id=d.delivery_id)''',(product,)).fetchall()
+              WHERE new.product=d.product AND new.delivery_id=d.delivery_id)
+            AND d.rowid=(SELECT MAX(current.rowid) FROM deliveries current
+              WHERE current.product=d.product AND current.acquired_at=d.acquired_at)''',(product,)).fetchall()
 
     def close(self):
         self.db.close()

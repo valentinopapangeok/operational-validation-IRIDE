@@ -1,0 +1,32 @@
+# Local measurements, caches, databases and reports
+validation/
+validation-*/
+local-data/
+*.db
+*.sqlite*
+*.tif
+*.tiff
+*.npz
+*.part
+*.xlsx
+# Local configuration and secrets
+.env
+.env.*
+*.env
+!*.env.example
+credentials/
+.mc/
+.aws/
+config/*.local.json
+# Python/editor artifacts
+.venv*/
+venv/
+.plot_deps/
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+.pytest_cache/
+.matplotlib/
+.DS_Store

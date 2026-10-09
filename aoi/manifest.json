@@ -1,0 +1,12 @@
+{
+  "files": {
+    "aoi/italy_land.geojson": {
+      "sha256": "03d60681cffc23cbeaaf7cd4e52264ce2d47395dab5a2b82539b24c9d0da4f78",
+      "bytes": 1338580
+    },
+    "aoi/marine.geojson": {
+      "sha256": "5c1cc5defa895d0e84afa854a6b4806a38d93b85a38f06f02bf498217e72e85a",
+      "bytes": 10155328
+    }
+  }
+}

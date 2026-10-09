@@ -1,0 +1,491 @@
+{
+  "source": "OSVP_Contrib.Partners_v2_S5-02_revised.xlsx",
+  "sha256": "3b10a0e42558a54da3934f3ac5ca849991b21e73e98ecf6e52a3919dcffe6363",
+  "sheet": "Batch1",
+  "products": {
+    "S5-02-01": {
+      "product": "S5-02-01",
+      "row": 11,
+      "name": "LST",
+      "production_frequency_raw": "Giornaliera",
+      "fields": {
+        "method": {
+          "value": "Cross-comparison con Landsat 8/9 (metodologia ESA fase di sviluppo), considerando le osservazioni termiche valide rispettivamente sulle superfici terrestri e marine.\nSaranno confrontati esclusivamente i pixel S5-02 coincidenti con i pixel validi dello swath Landsat",
+          "cell": "I11",
+          "requested_cell": "I11",
+          "sheet": "Batch1"
+        },
+        "thematic_target": {
+          "value": "Relative RMSE <= 20%",
+          "cell": "J11",
+          "requested_cell": "J11",
+          "sheet": "Batch1"
+        },
+        "sample_requirement": {
+          "value": "15 acquisizioni valide nel periodo di 90 giorni: 5 per ciascuna sub-AOI North, Center e South. La selezione dipende dalla disponibilità, qualità e copertura dei reference data. Le acquisizioni alimentano un'unica valutazione complessiva del prodotto.",
+          "cell": "K11",
+          "requested_cell": "K11",
+          "sheet": "Batch1"
+        },
+        "spatial_coverage": {
+          "value": "\nAOI funzionale alla copertura dei dati di reference, garantendo una distribuzione spaziale su tutta Italia, organizzata in 3 sub-aree: North, Center e South.\n",
+          "cell": "L11",
+          "requested_cell": "L11",
+          "sheet": "Batch1"
+        },
+        "positional_target": {
+          "value": ">=90%",
+          "cell": "M11",
+          "requested_cell": "M11",
+          "sheet": "Batch1"
+        },
+        "clarifications": {
+          "value": "La positional accuracy percentuale è riportata nel TD-2. Per renderla univocamente misurabile occorre chiarire la tolleranza spaziale associata, espressa in metri o pixel.",
+          "cell": "N11",
+          "requested_cell": "N11",
+          "sheet": "Batch1"
+        }
+      }
+    },
+    "S5-02-02": {
+      "product": "S5-02-02",
+      "row": 12,
+      "name": "SST",
+      "production_frequency_raw": "Giornaliera",
+      "fields": {
+        "method": {
+          "value": "Cross-comparison con Landsat 8/9 (metodologia ESA fase di sviluppo), considerando le osservazioni termiche valide rispettivamente sulle superfici terrestri e marine.\nSaranno confrontati esclusivamente i pixel S5-02 coincidenti con i pixel validi dello swath Landsat",
+          "cell": "I11",
+          "requested_cell": "I12",
+          "sheet": "Batch1"
+        },
+        "thematic_target": {
+          "value": "Relative RMSE <= 20%",
+          "cell": "J11",
+          "requested_cell": "J12",
+          "sheet": "Batch1"
+        },
+        "sample_requirement": {
+          "value": "15 acquisizioni valide nel periodo di 90 giorni: 5 per ciascuna sub-AOI North, Center e South. La selezione dipende dalla disponibilità, qualità e copertura dei reference data. Le acquisizioni alimentano un'unica valutazione complessiva del prodotto.",
+          "cell": "K11",
+          "requested_cell": "K12",
+          "sheet": "Batch1"
+        },
+        "spatial_coverage": {
+          "value": "\nAOI funzionale alla copertura dei dati di reference, garantendo una distribuzione spaziale su tutta Italia, organizzata in 3 sub-aree: North, Center e South.\n",
+          "cell": "L11",
+          "requested_cell": "L12",
+          "sheet": "Batch1"
+        },
+        "positional_target": {
+          "value": ">80%",
+          "cell": "M12",
+          "requested_cell": "M12",
+          "sheet": "Batch1"
+        },
+        "clarifications": {
+          "value": "La positional accuracy percentuale è riportata nel TD-2. Per renderla univocamente misurabile occorre chiarire la tolleranza spaziale associata, espressa in metri o pixel.",
+          "cell": "N11",
+          "requested_cell": "N12",
+          "sheet": "Batch1"
+        }
+      }
+    },
+    "S5-02-10": {
+      "product": "S5-02-10",
+      "row": 13,
+      "name": "LST Downscale",
+      "production_frequency_raw": "Giornaliera",
+      "fields": {
+        "method": {
+          "value": "Cross-comparison con Landsat 8/9 (metodologia ESA fase di sviluppo), considerando le osservazioni termiche valide rispettivamente sulle superfici terrestri e marine.\nSaranno confrontati esclusivamente i pixel S5-02 coincidenti con i pixel validi dello swath Landsat",
+          "cell": "I11",
+          "requested_cell": "I13",
+          "sheet": "Batch1"
+        },
+        "thematic_target": {
+          "value": "Relative RMSE <= 20%",
+          "cell": "J11",
+          "requested_cell": "J13",
+          "sheet": "Batch1"
+        },
+        "sample_requirement": {
+          "value": "15 acquisizioni valide nel periodo di 90 giorni: 5 per ciascuna sub-AOI North, Center e South. La selezione dipende dalla disponibilità, qualità e copertura dei reference data. Le acquisizioni alimentano un'unica valutazione complessiva del prodotto.",
+          "cell": "K11",
+          "requested_cell": "K13",
+          "sheet": "Batch1"
+        },
+        "spatial_coverage": {
+          "value": "\nAOI funzionale alla copertura dei dati di reference, garantendo una distribuzione spaziale su tutta Italia, organizzata in 3 sub-aree: North, Center e South.\n",
+          "cell": "L11",
+          "requested_cell": "L13",
+          "sheet": "Batch1"
+        },
+        "positional_target": {
+          "value": ">=90%",
+          "cell": "M13",
+          "requested_cell": "M13",
+          "sheet": "Batch1"
+        },
+        "clarifications": {
+          "value": "La positional accuracy percentuale è riportata nel TD-2. Per renderla univocamente misurabile occorre chiarire la tolleranza spaziale associata, espressa in metri o pixel.",
+          "cell": "N11",
+          "requested_cell": "N13",
+          "sheet": "Batch1"
+        }
+      }
+    },
+    "S5-02-11": {
+      "product": "S5-02-11",
+      "row": 14,
+      "name": "SST Downscale",
+      "production_frequency_raw": "Giornaliera",
+      "fields": {
+        "method": {
+          "value": "Cross-comparison con Landsat 8/9 (metodologia ESA fase di sviluppo), considerando le osservazioni termiche valide rispettivamente sulle superfici terrestri e marine.\nSaranno confrontati esclusivamente i pixel S5-02 coincidenti con i pixel validi dello swath Landsat",
+          "cell": "I11",
+          "requested_cell": "I14",
+          "sheet": "Batch1"
+        },
+        "thematic_target": {
+          "value": "Relative RMSE <= 20%",
+          "cell": "J11",
+          "requested_cell": "J14",
+          "sheet": "Batch1"
+        },
+        "sample_requirement": {
+          "value": "15 acquisizioni valide nel periodo di 90 giorni: 5 per ciascuna sub-AOI North, Center e South. La selezione dipende dalla disponibilità, qualità e copertura dei reference data. Le acquisizioni alimentano un'unica valutazione complessiva del prodotto.",
+          "cell": "K11",
+          "requested_cell": "K14",
+          "sheet": "Batch1"
+        },
+        "spatial_coverage": {
+          "value": "\nAOI funzionale alla copertura dei dati di reference, garantendo una distribuzione spaziale su tutta Italia, organizzata in 3 sub-aree: North, Center e South.\n",
+          "cell": "L11",
+          "requested_cell": "L14",
+          "sheet": "Batch1"
+        },
+        "positional_target": {
+          "value": ">80%",
+          "cell": "M14",
+          "requested_cell": "M14",
+          "sheet": "Batch1"
+        },
+        "clarifications": {
+          "value": "La positional accuracy percentuale è riportata nel TD-2. Per renderla univocamente misurabile occorre chiarire la tolleranza spaziale associata, espressa in metri o pixel.",
+          "cell": "N11",
+          "requested_cell": "N14",
+          "sheet": "Batch1"
+        }
+      }
+    },
+    "S5-02-03": {
+      "product": "S5-02-03",
+      "row": 15,
+      "name": "Solar Radiation",
+      "production_frequency_raw": "Giornaliera",
+      "fields": {
+        "method": {
+          "value": "Cross-comparison con ERA5-Land (metodologia ESA fase di sviluppo), selezionando la variabile di radiazione solare direttamente confrontabile con la grandezza fisica fornita dal prodotto S5-02.\nERA5 presenta una frequenza temporale adeguata al confronto con gli hourly outputs S5-02. Saranno considerate esclusivamente ore diurne e la selezione terrà conto della cloud cover, poiché in presenza di copertura nuvolosa la radiazione solare diretta può assumere valori nulli o prossimi allo zero, riducendo la significatività del confronto.",
+          "cell": "I15",
+          "requested_cell": "I15",
+          "sheet": "Batch1"
+        },
+        "thematic_target": {
+          "value": "Relative RMSE <= 20%",
+          "cell": "J15",
+          "requested_cell": "J15",
+          "sheet": "Batch1"
+        },
+        "sample_requirement": {
+          "value": "30 produzioni orarie nel periodo di 90 giorni, distribuite tra le sub-AOI e tra differenti condizioni di irraggiamento, sulla base della disponibilità e qualità dei reference data.",
+          "cell": "K15",
+          "requested_cell": "K15",
+          "sheet": "Batch1"
+        },
+        "spatial_coverage": {
+          "value": "\nAOI funzionale alla copertura dei dati di reference, garantendo una distribuzione spaziale su tutta Italia, organizzata in 3 sub-aree: North, Center e South.\n",
+          "cell": "L11",
+          "requested_cell": "L15",
+          "sheet": "Batch1"
+        },
+        "positional_target": {
+          "value": ">=90%",
+          "cell": "M15",
+          "requested_cell": "M15",
+          "sheet": "Batch1"
+        },
+        "clarifications": {
+          "value": "Il numero proposto riguarda le produzioni da confrontare con il riferimento. Non viene definita in questa sede la modalità di aggregazione o rendicontazione del KPI.",
+          "cell": "N15",
+          "requested_cell": "N15",
+          "sheet": "Batch1"
+        }
+      }
+    },
+    "S5-02-04": {
+      "product": "S5-02-04",
+      "row": 16,
+      "name": "Precipitation amount",
+      "production_frequency_raw": "Giornaliera",
+      "fields": {
+        "method": {
+          "value": "Cross-comparison con reti pluviometriche regionali di Emilia-Romagna, Lazio e Sicilia (metodologia ESA fase di sviluppo). Le reti forniscono osservazioni con frequenza adeguata al confronto con la risoluzione temporale hourly del prodotto IRIDE. Il principale fattore limitante è invece la natura intermittente della precipitazione. Una selezione casuale potrebbe infatti produrre un campione costituito prevalentemente da condizioni senza precipitazione.",
+          "cell": "I16",
+          "requested_cell": "I16",
+          "sheet": "Batch1"
+        },
+        "thematic_target": {
+          "value": "Relative RMSE <= 20%",
+          "cell": "J16",
+          "requested_cell": "J16",
+          "sheet": "Batch1"
+        },
+        "sample_requirement": {
+          "value": "30 produzioni orarie nel periodo di 90 giorni, selezionate privilegiando eventi con precipitazione osservata e includendo condizioni asciutte utili alla verifica delle false detection.",
+          "cell": "K16",
+          "requested_cell": "K16",
+          "sheet": "Batch1"
+        },
+        "spatial_coverage": {
+          "value": "\nAOI funzionale alla copertura dei dati di reference, garantendo una distribuzione spaziale su tutta Italia, organizzata in 3 sub-aree: North, Center e South.\n",
+          "cell": "L11",
+          "requested_cell": "L16",
+          "sheet": "Batch1"
+        },
+        "positional_target": {
+          "value": ">=90%",
+          "cell": "M16",
+          "requested_cell": "M16",
+          "sheet": "Batch1"
+        },
+        "clarifications": {
+          "value": "Il numero proposto riguarda le produzioni da confrontare con il riferimento. Non viene definita in questa sede la modalità di aggregazione o rendicontazione del KPI.",
+          "cell": "N16",
+          "requested_cell": "N16",
+          "sheet": "Batch1"
+        }
+      }
+    },
+    "S5-02-05": {
+      "product": "S5-02-05",
+      "row": 17,
+      "name": "Snow Cover",
+      "production_frequency_raw": "Giornaliera",
+      "fields": {
+        "method": {
+          "value": "Cross-comparison con maschera neve/ghiaccio da Sentinel-2 SCL (metodologia ESA fase di sviluppo) utilizzando la classe Snow/Ice e i relativi criteri di qualità.",
+          "cell": "I17",
+          "requested_cell": "I17",
+          "sheet": "Batch1"
+        },
+        "thematic_target": {
+          "value": "F1 score >= 80%",
+          "cell": "J17",
+          "requested_cell": "J17",
+          "sheet": "Batch1"
+        },
+        "sample_requirement": {
+          "value": "15 acquisizioni valide nel periodo di 90 giorni: 5 per ciascuna sub-AOI North, Center e South. La selezione considera cloud cover, qualità del riferimento, stagionalità e presenza di casi snow-free.",
+          "cell": "K17",
+          "requested_cell": "K17",
+          "sheet": "Batch1"
+        },
+        "spatial_coverage": {
+          "value": "\nAOI funzionale alla copertura dei dati di reference, garantendo una distribuzione spaziale su tutta Italia, organizzata in 3 sub-aree: North, Center e South.\n",
+          "cell": "L11",
+          "requested_cell": "L17",
+          "sheet": "Batch1"
+        },
+        "positional_target": {
+          "value": ">80%",
+          "cell": "M17",
+          "requested_cell": "M17",
+          "sheet": "Batch1"
+        },
+        "clarifications": {
+          "value": "Si propone di mantenere l'F1 score previsto dal TD-2 per la maschera binaria Snow/No Snow. Precision e recall possono essere riportate come diagnostica. Resta da chiarire la tolleranza della positional accuracy percentuale.",
+          "cell": "N17",
+          "requested_cell": "N17",
+          "sheet": "Batch1"
+        }
+      }
+    },
+    "S5-02-06": {
+      "product": "S5-02-06",
+      "row": 18,
+      "name": "Cloud Cover",
+      "production_frequency_raw": "Giornaliera",
+      "fields": {
+        "method": {
+          "value": "Cross-comparison con MSG/SEVIRI Cloud Mask (metodologia ESA fase di sviluppo). Il reference dataset fornisce osservazioni con frequenza adeguata al confronto con la risoluzione temporale hourly del prodotto IRIDE. Il principale requisito del campionamento è quindi rappresentare differenti condizioni di nuvolosità.",
+          "cell": "I18",
+          "requested_cell": "I18",
+          "sheet": "Batch1"
+        },
+        "thematic_target": {
+          "value": "F1 score >= 80%",
+          "cell": "J18",
+          "requested_cell": "J18",
+          "sheet": "Batch1"
+        },
+        "sample_requirement": {
+          "value": "30 produzioni orarie nel periodo di 90 giorni, distribuite tra le sub-AOI e tra condizioni serene, parzialmente nuvolose e nuvolose.",
+          "cell": "K18",
+          "requested_cell": "K18",
+          "sheet": "Batch1"
+        },
+        "spatial_coverage": {
+          "value": "\nAOI funzionale alla copertura dei dati di reference, garantendo una distribuzione spaziale su tutta Italia, organizzata in 3 sub-aree: North, Center e South.\n",
+          "cell": "L11",
+          "requested_cell": "L18",
+          "sheet": "Batch1"
+        },
+        "positional_target": {
+          "value": ">=90%",
+          "cell": "M18",
+          "requested_cell": "M18",
+          "sheet": "Batch1"
+        },
+        "clarifications": {
+          "value": "Si propone di mantenere l'F1 score previsto dal TD-2 per la maschera binaria Cloud/No Cloud. Precision e recall possono essere riportate come diagnostica. Resta da chiarire la tolleranza della positional accuracy percentuale.",
+          "cell": "N18",
+          "requested_cell": "N18",
+          "sheet": "Batch1"
+        }
+      }
+    },
+    "S5-02-07": {
+      "product": "S5-02-07",
+      "row": 19,
+      "name": "Methane column",
+      "production_frequency_raw": "Mensile",
+      "fields": {
+        "method": {
+          "value": "Cross-comparison con distribuzione globale GOSAT FTS Level 3, rispettivamente per CH₄ e CO₂ (metodologia ESA fase di sviluppo).\nil confronto sarà eseguito solamente qualora le celle valide del reference dataset sovrapposte al prodotto S5-02 coprano almeno il 20% dell’Italy AOI e, ove possibile, siano distribuite in almeno 2 delle 3 aree North, Center e South.\nTutti gli spatial matchups validi disponibili nel mese saranno utilizzati.",
+          "cell": "I19",
+          "requested_cell": "I19",
+          "sheet": "Batch1"
+        },
+        "thematic_target": {
+          "value": "Relative RMSE <= 20%",
+          "cell": "J19",
+          "requested_cell": "J19",
+          "sheet": "Batch1"
+        },
+        "sample_requirement": {
+          "value": "Lato validazione si propone di utilizzare tutte le produzioni mensili per cui siano disponibili reference data validi nel periodo di 3 mesi, fino a 3 mensilità. La periodicità di calcolo e rendicontazione del KPI resta da concordare.",
+          "cell": "K19",
+          "requested_cell": "K19",
+          "sheet": "Batch1"
+        },
+        "spatial_coverage": {
+          "value": "\nAOI funzionale alla copertura dei dati di reference, garantendo una distribuzione spaziale su tutta Italia, organizzata in 3 sub-aree: North, Center e South.\n",
+          "cell": "L11",
+          "requested_cell": "L19",
+          "sheet": "Batch1"
+        },
+        "positional_target": {
+          "value": ">80%",
+          "cell": "M19",
+          "requested_cell": "M19",
+          "sheet": "Batch1"
+        },
+        "clarifications": {
+          "value": "La proposta riguarda esclusivamente le mensilità utilizzabili in funzione della copertura GOSAT. La periodicità del KPI non viene definita da GEO-K.",
+          "cell": "N19",
+          "requested_cell": "N19",
+          "sheet": "Batch1"
+        }
+      }
+    },
+    "S5-02-08": {
+      "product": "S5-02-08",
+      "row": 20,
+      "name": "Carbon Dioxide column",
+      "production_frequency_raw": "Mensile",
+      "fields": {
+        "method": {
+          "value": "Cross-comparison con distribuzione globale GOSAT FTS Level 3, rispettivamente per CH₄ e CO₂ (metodologia ESA fase di sviluppo).\nil confronto sarà eseguito solamente qualora le celle valide del reference dataset sovrapposte al prodotto S5-02 coprano almeno il 20% dell’Italy AOI e, ove possibile, siano distribuite in almeno 2 delle 3 aree North, Center e South.\nTutti gli spatial matchups validi disponibili nel mese saranno utilizzati.",
+          "cell": "I19",
+          "requested_cell": "I20",
+          "sheet": "Batch1"
+        },
+        "thematic_target": {
+          "value": "Relative RMSE <= 20%",
+          "cell": "J19",
+          "requested_cell": "J20",
+          "sheet": "Batch1"
+        },
+        "sample_requirement": {
+          "value": "Lato validazione si propone di utilizzare tutte le produzioni mensili per cui siano disponibili reference data validi nel periodo di 3 mesi, fino a 3 mensilità. La periodicità di calcolo e rendicontazione del KPI resta da concordare.",
+          "cell": "K19",
+          "requested_cell": "K20",
+          "sheet": "Batch1"
+        },
+        "spatial_coverage": {
+          "value": "\nAOI funzionale alla copertura dei dati di reference, garantendo una distribuzione spaziale su tutta Italia, organizzata in 3 sub-aree: North, Center e South.\n",
+          "cell": "L11",
+          "requested_cell": "L20",
+          "sheet": "Batch1"
+        },
+        "positional_target": {
+          "value": ">80%",
+          "cell": "M20",
+          "requested_cell": "M20",
+          "sheet": "Batch1"
+        },
+        "clarifications": {
+          "value": null,
+          "cell": "N20",
+          "requested_cell": "N20",
+          "sheet": "Batch1"
+        }
+      }
+    },
+    "S5-02-09": {
+      "product": "S5-02-09",
+      "row": 21,
+      "name": "Aerosols",
+      "production_frequency_raw": "Giornaliera",
+      "fields": {
+        "method": {
+          "value": "Cross-comparison con AERONET (metodologia ESA fase di sviluppo). AERONET produce osservazioni con frequenza sub-giornaliera, mentre S5-02-09 è un prodotto giornaliero. Le singole osservazioni AERONET non saranno quindi considerate validation samples indipendenti. L’unità di validazione sarà lo station-day, ottenuto selezionando o aggregando le osservazioni AERONET temporalmente compatibili con il prodotto S5-02.",
+          "cell": "I21",
+          "requested_cell": "I21",
+          "sheet": "Batch1"
+        },
+        "thematic_target": {
+          "value": "Relative RMSE <= 30%",
+          "cell": "J21",
+          "requested_cell": "J21",
+          "sheet": "Batch1"
+        },
+        "sample_requirement": {
+          "value": "15 station-day matchup validi nel periodo di 90 giorni: 5 per ciascuna sub-AOI North, Center e South, distribuiti ove possibile su giornate e condizioni atmosferiche differenti.",
+          "cell": "K21",
+          "requested_cell": "K21",
+          "sheet": "Batch1"
+        },
+        "spatial_coverage": {
+          "value": "\nAOI funzionale alla copertura dei dati di reference, garantendo una distribuzione spaziale su tutta Italia, organizzata in 3 sub-aree: North, Center e South.\n",
+          "cell": "L11",
+          "requested_cell": "L21",
+          "sheet": "Batch1"
+        },
+        "positional_target": {
+          "value": ">80%",
+          "cell": "M21",
+          "requested_cell": "M21",
+          "sheet": "Batch1"
+        },
+        "clarifications": {
+          "value": "Il numero proposto riguarda gli station-day confrontabili. Non viene definita in questa sede la modalità di aggregazione o rendicontazione del KPI. Resta da chiarire la tolleranza della positional accuracy percentuale.",
+          "cell": "N21",
+          "requested_cell": "N21",
+          "sheet": "Batch1"
+        }
+      }
+    }
+  }
+}

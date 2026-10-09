@@ -61,7 +61,7 @@ For a new alias, follow MinIO's official setup and your organization's secret-ha
 
 ## Minimum production permissions
 
-Grant `ListBucket` for `ar_delivery/` and `GetObject` (including object metadata/HEAD) in `ou-s5-02-01-prod` through `ou-s5-02-11-prod`, or just the buckets the person will test. No upload, delete or bucket-administration permissions are used. Input collection and service storage buckets are not read by this connector.
+Grant `ListBucket` for `ar_delivery/`, `GetBucketLocation` for MinIO region discovery, and `GetObject` (including object metadata/HEAD) in `ou-s5-02-01-prod` through `ou-s5-02-11-prod`, or just the buckets the person will test. No upload, delete or bucket-administration permissions are used. Input collection and service storage buckets are not read by this connector.
 
 Connect to the approved VPN/network yourself before production commands. The application does not automate VPN sign-in, store VPN credentials, or disable TLS verification. Verify:
 

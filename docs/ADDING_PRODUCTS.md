@@ -1,6 +1,6 @@
 # Adding a validation product
 
-The repository contains all eleven S5-02 requirement definitions. Products 03–09 need scientific adapters. Start with one product end to end, using synthetic/offline fixtures before optional real-data integration. Product frequency, reference availability, proposed observation volume and scientific accuracy are separate concerns.
+The repository contains all eleven S5-02 requirement definitions. Products 03, 04, 06, 07 and 08 need scientific adapters. Products 05 and 09 have draft diagnostic adapters. Start with one product end to end, using synthetic/offline fixtures before optional real-data integration. Product frequency, reference availability, proposed observation volume and scientific accuracy are separate concerns.
 
 ## 1. Define the observable and method
 
@@ -47,7 +47,7 @@ The registry stores accepted samples only for COMPLETE outcomes. Coverage dedupl
 
 `metrics.py` implements continuous RMSE/MAE/bias/predictive R², binary confusion/F1/IoU and precipitation subsets. Thermal NumPy metrics are in `thermal.py`. Inputs must already be finite, valid and collocated; uncertainty and area weighting need explicit methodology.
 
-Expose required target metrics and diagnostic metrics separately. Persist unit/normalization details. Put artifact paths in `provenance.artifacts` to get report links; PNGs display inline. Product-specific charts can use Matplotlib Agg; do not require an interactive display. The current generic time trend assumes temperature metrics and should be extended before enabling nonthermal diagnostic trends.
+Expose required target metrics and diagnostic metrics separately. Persist unit/normalization details. Put artifact paths in `provenance.artifacts` to get report links; PNGs display inline. Product-specific charts can use Matplotlib Agg; do not require an interactive display. Thermal trends use temperature units; `evidence.make_trend` handles binary scores and nonthermal continuous units.
 
 ## 6. Make access portable
 

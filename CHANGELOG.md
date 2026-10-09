@@ -19,3 +19,9 @@
 - Added all-campaign discovery with date boundaries and highest numeric versions, selective downloads, pending retries, reference-date/domain filtering, preflight and error isolation.
 - Preserved scientific states, method-aware thermal cache, offline modes and accepted-sample safeguards.
 - Added console/JSON run summary, report integration and PyCharm guide.
+
+## Snow and AOD adapters
+
+- Added public Sentinel-2 SCL-only download, conservative pixel QA, native snow-cell aggregation, overlap deduplication, binary metrics and evidence.
+- Added AERONET V3 download, explicit quality levels, provisional 550 nm spectral matching and station-day aggregation with paired CSV and diagnostic plots.
+- Integrated both into the no-argument main workflow and product-specific report trends; added scientific tests and methodology/credential guides.

@@ -79,7 +79,10 @@ def execute(registry,config,base,workdir,client,product=None,as_of=None,max_scen
     for name in sorted({config['products'][d.product]['adapter'] for d in queue}-{'landsat_l2'}):
         refresher=REFERENCE_REFRESHERS.get(name)
         if refresher:
-            try:refresher(config,base,workdir,[d for d in queue if config['products'][d.product]['adapter']==name])
+            try:
+                result=refresher(config,base,workdir,[d for d in queue if config['products'][d.product]['adapter']==name]) or {}
+                summary['references_downloaded']+=result.get('new_downloaded_references',0)
+                summary.setdefault('reference_providers',{})[name]=result
             except Exception as exc:summary['errors'].append({'stage':name,'reason':f'{type(exc).__name__}: reference refresh failed'})
     # Only current, successfully downloaded deliveries may enter the scientific runner.
     summary['processing']=run(registry,config,base,workdir,product,identities={(d.product,d.delivery_id,d.revision) for d in queue})

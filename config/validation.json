@@ -401,7 +401,7 @@
     "S5-02-05": {
       "name": "Snow Cover",
       "kind": "binary",
-      "adapter": null,
+      "adapter": "sentinel2_scl",
       "reference": "Sentinel-2 SCL",
       "sample_unit": "acquisition",
       "sample_target": 15,
@@ -423,7 +423,7 @@
       "minimum_valid_pairs": null,
       "minimum_valid_overlap_fraction": null,
       "reference_quality_policy": null,
-      "units": null,
+      "units": "binary_snow",
       "gosat_min_italy_coverage": null,
       "plots": [
         "confusion_matrix",
@@ -759,7 +759,7 @@
     "S5-02-09": {
       "name": "AOD",
       "kind": "continuous",
-      "adapter": null,
+      "adapter": "aeronet_station_day",
       "reference": "AERONET",
       "sample_unit": "station-day",
       "sample_target": 15,
@@ -781,7 +781,7 @@
       "minimum_valid_pairs": null,
       "minimum_valid_overlap_fraction": null,
       "reference_quality_policy": null,
-      "units": null,
+      "units": "dimensionless_AOD",
       "gosat_min_italy_coverage": null,
       "plots": [
         "scatter",
@@ -1080,5 +1080,43 @@
   },
   "references": {
     "credentials_file": null
+  },
+  "snow": {
+    "policy_version": "sentinel2_scl_native_snow_v1_draft",
+    "stac_url": "https://planetarycomputer.microsoft.com/api/stac/v1",
+    "collection": "sentinel-2-l2a",
+    "product_band": 1,
+    "product_snow_class": 1,
+    "product_no_snow_class": 0,
+    "reference_snow_class": 11,
+    "valid_scl_classes": [
+      4,
+      5,
+      11
+    ],
+    "minimum_cell_reference_coverage": 0.5,
+    "snow_fraction_threshold": 0.5,
+    "minimum_pairs_per_scene": 30,
+    "minimum_pairs_per_delivery": 30,
+    "temporal_match": "same_UTC_day",
+    "method_status": "draft",
+    "product_mapping_source": "Delivered QGIS style labels 0=no snow, 1=snow"
+  },
+  "aeronet": {
+    "policy_version": "aeronet_station_day_v1_draft",
+    "download_levels": [
+      20,
+      15
+    ],
+    "wavelength_nm": 550,
+    "wavelength_status": "provisional_user_estimate",
+    "spectral_method": "direct_or_log_log_bracketing_interpolation_no_extrapolation",
+    "product_band": 1,
+    "temporal_match": "same_UTC_day_arithmetic_mean",
+    "minimum_observations_per_station_day": 3,
+    "minimum_station_days_per_delivery": 1,
+    "relative_rmse_normalization": "mean_reference_in_data_units",
+    "spatial_match": "containing_native_pixel",
+    "method_status": "draft"
   }
 }

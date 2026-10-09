@@ -59,3 +59,7 @@ python tools/import_validation_plan.py /path/to/OSVP_Contrib.Partners_v2_S5-02_r
 ```
 
 Install the `dev` extra first. The importer reads without changing the workbook and preserves source-cell relationships. Review the configuration diff before committing an updated plan. Local workbook binaries are ignored by Git. Re-importing targets does not itself establish an approved scientific method.
+
+## Draft 05/09 policies
+
+`snow` controls explicit product/SCL classes, same-day selection, valid cell coverage, snow fraction and minimum pairs. `aeronet` controls provisional wavelength, quality-level preference, spectral matching and minimum station-day observations. These settings produce diagnostic results and do not fill the unresolved contractual policy fields. See [Snow](SNOW.md) and [AOD](AOD.md). No-argument `main.py` picks both adapters automatically from product configuration.

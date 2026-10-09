@@ -114,3 +114,7 @@ It accepts the input-availability `providers.<name>.env` schema, copies supporte
 ## How Landsat access works
 
 The provider searches the public Planetary Computer STAC API for Collection 2 Tier-1 L2SP Landsat 8/9 scenes. For each Azure container it requests a short-lived SAS read token, caches it in memory, and downloads unsigned catalogue asset URLs with that temporary token added only to the HTTP request. The optional subscription key follows the [official Planetary Computer SDK](https://github.com/microsoft/planetary-computer-sdk-for-python/blob/main/planetary_computer/sas.py). There is no need to copy, save or share a SAS token, EarthExplorer password or Azure storage key. Recorded catalogue URLs remain unsigned.
+
+## Snow and AOD reference access
+
+Sentinel-2 SCL uses public Planetary Computer STAC/signing, with the existing optional `PLANETARY_COMPUTER_SUBSCRIPTION_KEY`. AERONET is public and needs no login. No new private files or keys are needed for 05/09. Production access still requires the VPN and `bucket.env`.

@@ -104,6 +104,13 @@ def generate(registry, config, workdir, product=None):
         evidence += '</section>'
     current = {(row['product'],row['delivery_id']):row for row in rows}
     for p,cfg in config['products'].items():
+        if cfg.get('adapter') in ('sentinel2_scl','aeronet_station_day'):
+            observations=[(row['acquired_at'],json.loads(row['metrics'])) for row in current.values() if row['product']==p and row['status']=='DIAGNOSTIC']
+            if len(observations)>=2:
+                from .evidence import make_trend
+                path=make_trend(observations,workdir/'report',p,cfg['kind'],cfg['units'])
+                evidence += '<section><h2>'+esc(p)+' · metrics over time</h2><img style="max-width:100%;width:700px" src="'+esc(quote(path.name))+'" alt="Diagnostic metrics over time"></section>'
+            continue
         if cfg.get('adapter')!='landsat_l2' or cfg.get('units')!='degree_Celsius':
             continue
         observations = [(row['acquired_at'],json.loads(row['metrics'])) for row in current.values() if row['product']==p and row['status']=='DIAGNOSTIC' and all(k in json.loads(row['metrics']) for k in ('rmse','mae','bias'))]

@@ -2,9 +2,9 @@
 
 Manually launched scientific validation for IRIDE S5-02 products. The pipeline downloads production deliveries and reference data, applies quality filters, collocates observations, calculates metrics, and keeps a local SQLite registry with reproducible evidence and HTML reports.
 
-**Implemented:** production downloads for all eleven products; Landsat 8/9 thermal reference downloads and preliminary comparisons for **01 LST, 02 SST, 10 downscaled LST and 11 downscaled SST**. Products 03–09 have imported requirements and shared metric helpers; their scientific adapters still need implementation.
+**Implemented:** production downloads for all eleven products; Landsat 8/9 thermal reference downloads and preliminary comparisons for **01 LST, 02 SST, 10 downscaled LST and 11 downscaled SST**. **05 Snow Cover** now has Sentinel-2 SCL download/QA/native-cell comparisons; **09 AOD** has public AERONET download and provisional 550 nm station-day comparisons. Products **03, 04, 06, 07, 08** still need scientific adapters.
 
-Thermal results are currently **DIAGNOSTIC**. They do not count as accepted campaign acquisitions or establish overall compliance. The shipped campaign is **1 October–31 December 2026**. Thermal rRMSE uses the absolute mean paired reference temperature **in Celsius**; this convention is explicit and scale dependent.
+Thermal, snow and AOD results are currently **DIAGNOSTIC**. They do not count as accepted campaign acquisitions or establish overall compliance. The shipped campaign is **1 October–31 December 2026**. Thermal rRMSE uses the absolute mean paired reference temperature **in Celsius**; this convention is explicit and scale dependent.
 
 ## Quick start
 
@@ -38,7 +38,7 @@ python main.py
 iride-validate --run
 ```
 
-Products 03–09 remain `PENDING_CONFIGURATION` until their scientific adapters are implemented. An operationally successful run does not imply accepted validation samples.
+Products 03, 04, 06, 07 and 08 remain `PENDING_CONFIGURATION` until their scientific adapters are implemented. Snow and AOD run automatically; AOD uses a provisional 550 nm setting. An operationally successful run does not imply accepted validation samples.
 
 ## Run against production
 
@@ -76,6 +76,8 @@ iride-validate --product S5-02-02
 | [Configuration](docs/CONFIGURATION.md) | AOIs, manifest paths, scientific policies and reference settings |
 | [Adding products](docs/ADDING_PRODUCTS.md) | Adapter contract, registration, evidence, metrics and tests |
 | [Architecture](docs/ARCHITECTURE.md) | Registry states and integration contracts |
+| [Snow methodology](docs/SNOW.md) | Sentinel-2 SCL mapping, QA and native-cell comparison |
+| [AOD methodology](docs/AOD.md) | Wavelength, AERONET levels and station-day comparison |
 | [Landsat methodology](docs/LANDSAT.md) | Scaling, QA, spatial support, rRMSE and limitations |
 | [Requirements](docs/REQUIREMENTS.md) | Imported workbook targets and sampling requirements |
 | [Testing](docs/TESTING.md) | Offline checks, clean installs and optional integration tests |

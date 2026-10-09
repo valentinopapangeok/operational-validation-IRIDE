@@ -50,6 +50,8 @@ def validate_original_href(href):
 
 
 class LandsatProvider:
+    namespace="landsat"
+    label="Landsat"
     def __init__(self,config,base):
         self.config=config
         self.base=base
@@ -158,7 +160,7 @@ class LandsatProvider:
         if any(c not in 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_-' for c in scene):
             raise ValueError('Unsafe Landsat scene identifier')
         revision=item['validation:revision']
-        folder=workdir/'cache'/'reference'/'landsat'/scene/revision
+        folder=workdir/'cache'/'reference'/self.namespace/scene/revision
         folder.mkdir(parents=True,exist_ok=True)
         save_json(folder/'stac_item.json',item)
         receipt_path=folder/'download_receipt.json'
@@ -178,7 +180,7 @@ class LandsatProvider:
             try:
                 signed=self.sign(href)
                 partial=target.with_name(target.name+'.part')
-                print(f'Landsat {scene}: downloading {key}',flush=True)
+                print(f'{self.label} {scene}: downloading {key}',flush=True)
                 with self.session().get(signed,stream=True,timeout=(15,120),headers={'Accept-Encoding':'identity'}) as response:
                     response.raise_for_status()
                     expected=response.headers.get('Content-Length');etag=response.headers.get('ETag')

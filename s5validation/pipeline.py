@@ -47,7 +47,7 @@ def discover(config, base, product=None):
 
 
 def check_outcome(outcome, cfg, campaign):
-    if outcome.status not in {'PENDING_REFERENCE','REJECTED_QA','ERROR','COMPLETE','OUTSIDE_CAMPAIGN','DIAGNOSTIC'}:
+    if outcome.status not in {'PENDING_CONFIGURATION','PENDING_REFERENCE','REJECTED_QA','ERROR','COMPLETE','OUTSIDE_CAMPAIGN','DIAGNOSTIC'}:
         raise ValueError('Adapter returned an invalid status')
     if outcome.status != 'COMPLETE':
         return

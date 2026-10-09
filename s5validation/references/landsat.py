@@ -17,7 +17,7 @@ THERMAL_PRODUCTS={'S5-02-01','S5-02-02','S5-02-10','S5-02-11'}
 def load_geometry(path):
     from shapely.geometry import shape
     from shapely.ops import unary_union
-    data=json.loads(Path(path).read_text())
+    data=json.loads(Path(path).read_text(encoding='utf-8'))
     if data.get('type')=='FeatureCollection':
         geometry=unary_union([shape(f['geometry']) for f in data['features']])
     elif data.get('type')=='Feature':
@@ -162,7 +162,7 @@ class LandsatProvider:
         folder.mkdir(parents=True,exist_ok=True)
         save_json(folder/'stac_item.json',item)
         receipt_path=folder/'download_receipt.json'
-        prior=json.loads(receipt_path.read_text()) if receipt_path.exists() else {}
+        prior=json.loads(receipt_path.read_text(encoding='utf-8')) if receipt_path.exists() else {}
         assets=dict(prior.get('assets',{}))
         receipt={'scene_id':scene,'revision':revision,'platform':item['properties']['platform'],
                  'acquired_at':item['properties']['datetime'],'domains':item['validation:domains'],
@@ -193,7 +193,7 @@ class LandsatProvider:
                     if content_md5 and base64.b64encode(md5.digest()).decode()!=content_md5:
                         raise ValueError('Reference asset MD5 mismatch')
                 if key=='mtl.json':
-                    json.loads(partial.read_text())
+                    json.loads(partial.read_text(encoding='utf-8'))
                 else:
                     import rasterio
                     with rasterio.open(partial) as ds:
@@ -230,7 +230,7 @@ def refresh_references(config,base,workdir,as_of,download=True,max_scenes=None,w
         return search
     selected=search['candidates'][:max_scenes] if max_scenes else search['candidates']
     index_path=workdir/'cache'/'reference'/'landsat'/'index.json'
-    old=json.loads(index_path.read_text()) if index_path.exists() else {'scenes':[]}
+    old=json.loads(index_path.read_text(encoding='utf-8')) if index_path.exists() else {'scenes':[]}
     records={r['scene_id']:r for r in old['scenes']}
     with ThreadPoolExecutor(max_workers=workers) as pool:
         futures={pool.submit(provider.download_scene,item,workdir):item for item in selected}

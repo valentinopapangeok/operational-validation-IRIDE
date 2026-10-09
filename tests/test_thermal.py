@@ -10,7 +10,7 @@ from s5validation.thermal import qa_valid, temperature_celsius, collocate, dedup
 
 class ThermalTests(unittest.TestCase):
     def setUp(self):
-        self.policy=json.loads((Path(__file__).resolve().parents[1]/'config/validation.json').read_text())['landsat']
+        self.policy=json.loads((Path(__file__).resolve().parents[1]/'config/validation.json').read_text(encoding='utf-8'))['landsat']
         self.asset={'href':'https://example.blob.core.windows.net/data/X_ST_B10.TIF','raster:bands':[{'scale':0.00341802,'offset':149,'unit':'kelvin'}]}
 
     def test_scaling_and_invalid_dn(self):

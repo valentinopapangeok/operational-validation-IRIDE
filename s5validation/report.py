@@ -35,12 +35,12 @@ def generate(registry, config, workdir, product=None):
     cards = ''
     downloads_path = workdir/'inventory'/'downloads.json'
     inventory_path = workdir/'inventory'/'latest_products.json'
-    downloads = json.loads(downloads_path.read_text()) if downloads_path.exists() else {}
-    inventory = json.loads(inventory_path.read_text()) if inventory_path.exists() else {}
+    downloads = json.loads(downloads_path.read_text(encoding='utf-8')) if downloads_path.exists() else {}
+    inventory = json.loads(inventory_path.read_text(encoding='utf-8')) if inventory_path.exists() else {}
     receipts = {r['product']:r for r in downloads.get('receipts',[])}
     latest = {i['product']:i for i in inventory.get('items',[])}
     checks_path=workdir/'inventory'/'raster_checks.json'
-    checks={c['product']:c for c in json.loads(checks_path.read_text())} if checks_path.exists() else {}
+    checks={c['product']:c for c in json.loads(checks_path.read_text(encoding='utf-8'))} if checks_path.exists() else {}
     for p,cfg in config['products'].items():
         if product and p != product:
             continue
@@ -73,7 +73,7 @@ def generate(registry, config, workdir, product=None):
     evidence = ''
     search_path = workdir/'inventory'/'landsat_search.json'
     if search_path.exists():
-        search = json.loads(search_path.read_text())
+        search = json.loads(search_path.read_text(encoding='utf-8'))
         evidence += '<section><h2>Landsat reference cache</h2><p>'+esc(search.get('platform_counts',{}))+'</p><p>Downloaded scenes: '+esc(search.get('downloaded_scenes','not downloaded'))+'. Query: '+esc(search.get('query_start'))+' → '+esc(search.get('query_end'))+'</p></section>'
     from os.path import relpath
     from urllib.parse import quote
@@ -115,7 +115,7 @@ def generate(registry, config, workdir, product=None):
     report = workdir/'report'/'validation_report.html'
     report.parent.mkdir(parents=True,exist_ok=True)
     temp = report.with_suffix('.tmp')
-    temp.write_text(doc)
+    temp.write_text(doc, encoding='utf-8')
     temp.replace(report)
     return report
 

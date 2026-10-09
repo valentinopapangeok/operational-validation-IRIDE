@@ -77,11 +77,11 @@ def main():
     parser.add_argument('--config',type=Path,default=base/'config/validation.json')
     args = parser.parse_args()
     plan = extract(args.workbook)
-    config = apply(plan,json.loads(args.config.read_text()))
+    config = apply(plan,json.loads(args.config.read_text(encoding='utf-8')))
     # Complete parsing before writing either local configuration file.
     for path,data in [(base/'config/validation_plan_source.json',plan),(args.config,config)]:
         temporary = path.with_suffix('.tmp')
-        temporary.write_text(json.dumps(data,indent=2,ensure_ascii=False)+'\n')
+        temporary.write_text(json.dumps(data,indent=2,ensure_ascii=False)+'\n', encoding='utf-8')
         temporary.replace(path)
     print('Imported 11 product requirements with merged-cell provenance; source workbook unchanged.')
 

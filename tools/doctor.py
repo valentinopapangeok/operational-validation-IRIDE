@@ -10,7 +10,7 @@ from s5validation.bootstrap import initialize
 from s5validation.credentials import credential_path, read_credentials, downloader_path, downloader_credentials
 
 base=Path(__file__).resolve().parents[1]
-config=json.loads((base/'config/validation.json').read_text())
+config=json.loads((base/'config/validation.json').read_text(encoding='utf-8'))
 os.environ.setdefault('MPLCONFIGDIR',str(base/'validation/.matplotlib'))
 failures=[]
 try:

@@ -17,7 +17,7 @@ BASE=Path(__file__).resolve().parents[1]
 class CredentialTests(unittest.TestCase):
     def file(self,root,secret='fixture secret#/?@'):
         path=root/'private.env'
-        path.write_text('IRIDE_S3_ENDPOINT="https://storage.example.test"\nIRIDE_PROD_ACCESS_KEY="fixture-access"\nIRIDE_PROD_SECRET_KEY="'+secret+'"\n')
+        path.write_text('IRIDE_S3_ENDPOINT="https://storage.example.test"\nIRIDE_PROD_ACCESS_KEY="fixture-access"\nIRIDE_PROD_SECRET_KEY="'+secret+'"\n', encoding='utf-8')
         return path
 
     def test_literal_credentials_and_encoding(self):
@@ -34,7 +34,7 @@ class CredentialTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temp:
             root=Path(temp);path=self.file(root,'REPLACE_SECRET')
             with self.assertRaises(ValueError): read_credentials(path)
-            path=self.file(root);path.write_text(path.read_text().replace('https://storage.example.test','http://storage.example.test'))
+            path=self.file(root);path.write_text(path.read_text(encoding='utf-8').replace('https://storage.example.test','http://storage.example.test'), encoding='utf-8')
             with self.assertRaises(ValueError): read_credentials(path)
 
     def test_minio_error_redacts_credentials(self):
@@ -50,7 +50,7 @@ class CredentialTests(unittest.TestCase):
 
     def test_repository_private_file_discovery(self):
         with tempfile.TemporaryDirectory() as temp,patch.dict(os.environ,{},clear=True):
-            root=Path(temp);(root/'credentials').mkdir();path=root/'credentials/bucket.env';path.write_text('fixture')
+            root=Path(temp);(root/'credentials').mkdir();path=root/'credentials/bucket.env';path.write_text('fixture', encoding='utf-8')
             self.assertEqual(credential_path(base=root),path)
             os.environ['S5_VALIDATION_CREDENTIALS']=str(root/'override.env')
             self.assertEqual(credential_path(base=root),root/'override.env')
@@ -58,7 +58,7 @@ class CredentialTests(unittest.TestCase):
     def test_optional_downloader_file_and_alias(self):
         with tempfile.TemporaryDirectory() as temp,patch.dict(os.environ,{},clear=True):
             root=Path(temp);(root/'credentials').mkdir();path=root/'credentials/downloaders.env'
-            path.write_text('PLANETARY_COMPUTER_SUBSCRIPTION_KEY=""\nEARTHDATA_USER="fixture-user"\nCDS_KEY="REPLACE_KEY"\n')
+            path.write_text('PLANETARY_COMPUTER_SUBSCRIPTION_KEY=""\nEARTHDATA_USER="fixture-user"\nCDS_KEY="REPLACE_KEY"\n', encoding='utf-8')
             values=downloader_credentials({},root)
             self.assertEqual(values['EARTHDATA_USERNAME'],'fixture-user')
             self.assertNotIn('PLANETARY_COMPUTER_SUBSCRIPTION_KEY',values);self.assertNotIn('CDS_KEY',values)
@@ -66,17 +66,17 @@ class CredentialTests(unittest.TestCase):
 
 class BootstrapTests(unittest.TestCase):
     def fixture(self,root):
-        cfg=copy.deepcopy(json.loads((BASE/'config/validation.json').read_text()));geometry=root/'aoi.geojson'
-        geometry.write_text(json.dumps({'type':'Polygon','coordinates':[[[10,35],[20,35],[20,50],[10,50],[10,35]]]}))
+        cfg=copy.deepcopy(json.loads((BASE/'config/validation.json').read_text(encoding='utf-8')));geometry=root/'aoi.geojson'
+        geometry.write_text(json.dumps({'type':'Polygon','coordinates':[[[10,35],[20,35],[20,50],[10,50],[10,35]]]}), encoding='utf-8')
         cfg['campaign']['aoi_file']='aoi.geojson';cfg['landsat']['land_aoi_file']='aoi.geojson';cfg['landsat']['marine_aoi_file']='aoi.geojson'
         return cfg
 
     def test_every_run_creates_and_preserves_state(self):
         with tempfile.TemporaryDirectory() as temp:
             root=Path(temp);cfg=self.fixture(root);work=root/'validation';initialize(cfg,root,work)
-            self.assertTrue((root/'credentials').is_dir());self.assertEqual(json.loads((work/'deliveries.json').read_text()),[])
-            manifest=work/'deliveries.json';manifest.write_text('[{"fixture":"preserved"}]');initialize(cfg,root,work)
-            self.assertEqual(json.loads(manifest.read_text())[0]['fixture'],'preserved')
+            self.assertTrue((root/'credentials').is_dir());self.assertEqual(json.loads((work/'deliveries.json').read_text(encoding='utf-8')),[])
+            manifest=work/'deliveries.json';manifest.write_text('[{"fixture":"preserved"}]', encoding='utf-8');initialize(cfg,root,work)
+            self.assertEqual(json.loads(manifest.read_text(encoding='utf-8'))[0]['fixture'],'preserved')
             for folder in ('cache/s5','cache/reference','results/S5-02-11','report','inventory'): self.assertTrue((work/folder).is_dir())
 
     def test_missing_aoi_and_invalid_campaign_fail(self):
@@ -89,11 +89,11 @@ class BootstrapTests(unittest.TestCase):
     def test_resource_checksum_guard(self):
         with tempfile.TemporaryDirectory() as temp:
             root=Path(temp);cfg=self.fixture(root);(root/'aoi').mkdir()
-            (root/'aoi/manifest.json').write_text(json.dumps({'files':{'aoi.geojson':{'sha256':'not-the-current-hash'}}}))
+            (root/'aoi/manifest.json').write_text(json.dumps({'files':{'aoi.geojson':{'sha256':'not-the-current-hash'}}}), encoding='utf-8')
             with self.assertRaisesRegex(ValueError,'checksum'): initialize(cfg,root,root/'validation')
 
     def test_cli_custom_workdir_gets_separate_manifest(self):
         with tempfile.TemporaryDirectory() as temp:
-            root=Path(temp);cfg=self.fixture(root);(root/'config').mkdir();path=root/'config/validation.json';path.write_text(json.dumps(cfg));work=root/'separate'
+            root=Path(temp);cfg=self.fixture(root);(root/'config').mkdir();path=root/'config/validation.json';path.write_text(json.dumps(cfg), encoding='utf-8');work=root/'separate'
             self.assertEqual(main(['--config',str(path),'--workdir',str(work),'--status']),0)
             self.assertTrue((work/'deliveries.json').exists());self.assertFalse((root/'validation/deliveries.json').exists())

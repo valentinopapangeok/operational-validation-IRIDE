@@ -214,7 +214,7 @@ class LandsatAdapter:
         index_path=workdir/'cache'/'reference'/'landsat'/'index.json'
         if not index_path.exists():
             return Outcome('PENDING_REFERENCE','No Landsat cache yet; launch with --landsat','NOT_AVAILABLE')
-        index=json.loads(index_path.read_text())
+        index=json.loads(index_path.read_text(encoding='utf-8'))
         domain='land' if delivery.product in ('S5-02-01','S5-02-10') else 'marine'
         aoi_path=resolve_path(self.base,policy[domain+'_aoi_file']);aoi=load_geometry(aoi_path)
         day=delivery.acquired_at[:10]
@@ -232,12 +232,12 @@ class LandsatAdapter:
         folder.mkdir(parents=True,exist_ok=True)
         cached=folder/'outcome.json'
         if cached.exists():
-            previous=json.loads(cached.read_text())
+            previous=json.loads(cached.read_text(encoding='utf-8'))
             if all(Path(p).exists() for p in previous['provenance'].get('artifacts',[])):
                 return Outcome(**previous)
         parts=[];acquisitions=[];details=[];artifacts=[]
         for record in sorted(scenes,key=lambda r:r['scene_id']):
-            item=json.loads((Path(record['folder'])/'stac_item.json').read_text())
+            item=json.loads((Path(record['folder'])/'stac_item.json').read_text(encoding='utf-8'))
             print(f'Collocating {delivery.product} with {record["scene_id"]} ({domain})',flush=True)
             pairs,info=collocate(Path(delivery.uri),item,record,domain,aoi,policy)
             info.update(scene_id=record['scene_id'],acquired_at=record['acquired_at'],reference_revision=record['revision'])
@@ -303,7 +303,7 @@ def download_matching_deliveries(config,base,workdir,search,product=None):
     snapshot=workdir/'inventory'/'thermal_match_downloads.json'
     save_json(snapshot,result)
     manifest_path=resolve_path(base,config['delivery']['manifest'])
-    current=json.loads(manifest_path.read_text()) if manifest_path.exists() else []
+    current=json.loads(manifest_path.read_text(encoding='utf-8')) if manifest_path.exists() else []
     known={(d['product'],d['delivery_id']):d for d in current}
     for item in plan:
         print(f'Downloading contemporaneous {item["product"]}: {item["acquired_at"]}',flush=True)

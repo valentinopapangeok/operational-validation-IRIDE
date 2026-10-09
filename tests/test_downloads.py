@@ -75,8 +75,8 @@ class DownloadTests(unittest.TestCase):
         with self.assertRaises(ValueError): positional_accuracy([1],None)
     def test_imported_plan_provenance(self):
         base=Path(__file__).resolve().parents[1]
-        cfg=json.loads((base/'config/validation.json').read_text())
-        plan=json.loads((base/'config/validation_plan_source.json').read_text())
+        cfg=json.loads((base/'config/validation.json').read_text(encoding='utf-8'))
+        plan=json.loads((base/'config/validation_plan_source.json').read_text(encoding='utf-8'))
         self.assertEqual(len(plan['products']),11)
         self.assertEqual(cfg['products']['S5-02-02']['plan']['fields']['thematic_target']['cell'],'J11')
         self.assertEqual(cfg['products']['S5-02-09']['sample_target'],15)

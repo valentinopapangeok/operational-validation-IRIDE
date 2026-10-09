@@ -14,7 +14,7 @@ def write_private(path,values,overwrite=False):
         raise ValueError('Private destination exists; use --overwrite intentionally')
     flags=os.O_WRONLY|os.O_CREAT|(os.O_TRUNC if overwrite else os.O_EXCL)
     descriptor=os.open(path,flags,0o600)
-    with os.fdopen(descriptor,'w') as stream:
+    with os.fdopen(descriptor,'w',encoding='utf-8') as stream:
         stream.write('# Private runtime credentials. Never commit or paste these values.\n')
         for key,value in sorted(values.items()):
             stream.write(key+'='+shlex.quote(str(value))+'\n')
@@ -31,7 +31,7 @@ def main():
     parser.add_argument('--overwrite',action='store_true')
     args=parser.parse_args()
     try:
-        config=json.loads(args.input_config.read_text());values={}
+        config=json.loads(args.input_config.read_text(encoding='utf-8'));values={}
         for provider in config.get('providers',{}).values():
             for key,value in provider.get('env',{}).items():
                 if key in DOWNLOADER_KEYS and value is not None and str(value).strip():

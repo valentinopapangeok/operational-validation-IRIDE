@@ -46,7 +46,7 @@ class LifecycleTests(unittest.TestCase):
         self.temp = tempfile.TemporaryDirectory()
         self.base = Path(self.temp.name)
         self.reg = Registry(self.base/'validation.db')
-        self.cfg = json.loads((BASE/'config/validation.json').read_text())
+        self.cfg = json.loads((BASE/'config/validation.json').read_text(encoding='utf-8'))
         self.cfg['delivery']['manifest']='deliveries.json'
         self.cfg['campaign'].update(start='2026-10-01T00:00:00Z',end='2026-12-30T00:00:00Z',aoi_file='fixture',sub_aoi_file='fixture',kpi_aggregation='fixture')
         self.cfg['products']['S5-02-01'].update(adapter='test',units='fixture',temporal_tolerance_seconds=3600,minimum_valid_pairs=1,minimum_valid_overlap_fraction=0.1,reference_quality_policy='fixture')
@@ -56,7 +56,7 @@ class LifecycleTests(unittest.TestCase):
         self.reg.close()
         self.temp.cleanup()
     def write(self,data):
-        (self.base/'deliveries.json').write_text(json.dumps(data))
+        (self.base/'deliveries.json').write_text(json.dumps(data), encoding='utf-8')
     def complete(self):
         return Outcome('COMPLETE','valid','AVAILABLE',samples=[dict(sample_key='acquisition1',area='North',observed_at='2026-10-05T10:00:00Z',evidence={'source':'fixture'})],metrics={'n':1,'rmse':1},provenance={'method':'fixture'})
     def execute(self,out):
@@ -97,7 +97,7 @@ class LifecycleTests(unittest.TestCase):
         self.execute(out)
         self.assertEqual(self.reg.rows()[0]['status'],'ERROR')
         self.execute(Outcome('ERROR','<script>alert(1)</script>'))
-        page=generate(self.reg,self.cfg,self.base).read_text()
+        page=generate(self.reg,self.cfg,self.base).read_text(encoding='utf-8')
         self.assertIn('&lt;script&gt;',page)
         self.assertNotIn('<script>',page)
     def test_failure_isolation(self):

@@ -17,7 +17,7 @@ from s5validation.report import generate
 def smoke(workdir):
     base=Path(__file__).resolve().parents[1]
     workdir=workdir.resolve();workdir.mkdir(parents=True,exist_ok=True)
-    config=copy.deepcopy(json.loads((base/'config/validation.json').read_text()))
+    config=copy.deepcopy(json.loads((base/'config/validation.json').read_text(encoding='utf-8')))
     day='2026-10-01T09:00:00Z'
     config['campaign'].update(start='2026-10-01T00:00:00Z',end='2027-01-01T00:00:00Z')
     config['landsat']['minimum_pairs_per_scene']=1

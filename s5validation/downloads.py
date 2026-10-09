@@ -31,7 +31,7 @@ def digest(path, algorithm='sha256'):
 def save_json(path, value):
     path.parent.mkdir(parents=True,exist_ok=True)
     temporary = path.with_suffix(path.suffix+'.tmp')
-    temporary.write_text(json.dumps(value,indent=2,ensure_ascii=False)+'\n')
+    temporary.write_text(json.dumps(value,indent=2,ensure_ascii=False)+'\n', encoding='utf-8')
     temporary.replace(path)
 
 
@@ -145,7 +145,7 @@ def download_item(client,item,workdir):
     folder = workdir/'cache'/'s5'/item['product']/item['delivery_id']/item['revision']
     folder.mkdir(parents=True,exist_ok=True)
     receipt_path = folder/'download_receipt.json'
-    prior = json.loads(receipt_path.read_text()) if receipt_path.exists() else {'assets':[]}
+    prior = json.loads(receipt_path.read_text(encoding='utf-8')) if receipt_path.exists() else {'assets':[]}
     completed = {a['key']:a for a in prior['assets'] if a.get('status')=='DOWNLOADED'}
     receipt = {'product':item['product'],'delivery_id':item['delivery_id'],'revision':item['revision'],
                'acquired_at':item['acquired_at'],'assets':list(completed.values()),'status':'DOWNLOADING'}
@@ -207,7 +207,7 @@ def sync_latest(config,base,workdir,product=None,inventory_only=False,client=Non
         save_json(workdir/'inventory'/'downloads.json',{'receipts':receipts,'inventory_errors':errors})
     manifest_path=Path(config['delivery']['manifest'])
     if not manifest_path.is_absolute(): manifest_path=base/manifest_path
-    existing=json.loads(manifest_path.read_text()) if manifest_path.exists() else []
+    existing=json.loads(manifest_path.read_text(encoding='utf-8')) if manifest_path.exists() else []
     by_identity={(d['product'],d['delivery_id']):d for d in existing}
     for item,receipt in zip(found,receipts):
         if receipt['status']=='DOWNLOADED':

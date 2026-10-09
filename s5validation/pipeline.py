@@ -29,7 +29,7 @@ def discover(config, base, product=None):
         raise ValueError('Bucket catalogue discovery will be connected with the first product adapter')
     path = Path(delivery['manifest'])
     manifest_path=path if path.is_absolute() else base/path
-    data=json.loads(manifest_path.read_text()) if manifest_path.exists() else []
+    data=json.loads(manifest_path.read_text(encoding='utf-8')) if manifest_path.exists() else []
     result = []
     identities = set()
     for item in data:

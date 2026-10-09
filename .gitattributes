@@ -1,0 +1,3 @@
+* text=auto eol=lf
+# Preserve exact source bytes used by geometry integrity/provenance checks.
+aoi/*.geojson -text

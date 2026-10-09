@@ -16,7 +16,7 @@ def initialize(config,base,workdir):
     resources=base/'aoi/manifest.json'
     if not resources.exists() and any(str(value or '').startswith('aoi/') for value in (campaign.get('aoi_file'),config.get('landsat',{}).get('land_aoi_file'),config.get('landsat',{}).get('marine_aoi_file'))):
         raise ValueError('Bundled aoi/manifest.json is missing; restore it from Git')
-    bundled=json.loads(resources.read_text()) if resources.exists() else {'files':{}}
+    bundled=json.loads(resources.read_text(encoding='utf-8')) if resources.exists() else {'files':{}}
     paths={campaign.get('aoi_file')}
     if campaign.get('sub_aoi_file'):
         paths.add(campaign['sub_aoi_file'])
@@ -30,7 +30,7 @@ def initialize(config,base,workdir):
             path=base/path
         if not path.is_file():
             raise ValueError(f'Required AOI file is missing: {name}; restore it from Git or provide your configured geometry')
-        payload=json.loads(path.read_text())
+        payload=json.loads(path.read_text(encoding='utf-8'))
         if payload.get('type') not in ('FeatureCollection','Feature','Polygon','MultiPolygon'):
             raise ValueError(f'Unsupported AOI GeoJSON: {name}')
         try:
@@ -50,6 +50,6 @@ def initialize(config,base,workdir):
         manifest=base/manifest
     if not manifest.exists():
         save_json(manifest,[])
-    payload=json.loads(manifest.read_text())
+    payload=json.loads(manifest.read_text(encoding='utf-8'))
     if not isinstance(payload,list):
         raise ValueError('Delivery manifest must be a JSON list')

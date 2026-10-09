@@ -38,7 +38,7 @@ def main(argv=None,default_base=None):
         parser.error('--max-scenes must be positive')
     registry = None
     try:
-        config = json.loads(args.config.read_text())
+        config = json.loads(args.config.read_text(encoding='utf-8'))
         if args.downloader_credentials_file:
             config.setdefault('references',{})['credentials_file']=str(args.downloader_credentials_file.expanduser().resolve())
         if args.credentials_file:

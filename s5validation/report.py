@@ -88,7 +88,7 @@ def generate(registry, config, workdir, product=None):
             path = Path(artifact)
             if not path.exists():
                 continue
-            url = quote(relpath(path,workdir/'report'),safe='/')
+            url = quote(Path(relpath(path,workdir/'report')).as_posix(),safe='/')
             evidence += '<p><a href="'+esc(url)+'">'+esc(path.name)+'</a></p>'
             if path.suffix=='.png':
                 evidence += '<img style="max-width:100%;width:620px" src="'+esc(url)+'" alt="'+esc(path.stem)+'">'

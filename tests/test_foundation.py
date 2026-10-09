@@ -100,6 +100,15 @@ class LifecycleTests(unittest.TestCase):
         page=generate(self.reg,self.cfg,self.base).read_text(encoding='utf-8')
         self.assertIn('&lt;script&gt;',page)
         self.assertNotIn('<script>',page)
+    def test_artifact_links_use_portable_url_paths(self):
+        artifact=self.base/'results'/'fixture.png'
+        artifact.parent.mkdir()
+        artifact.write_bytes(b'fixture-link-only')
+        self.execute(Outcome('DIAGNOSTIC','fixture','AVAILABLE',metrics={'n':1},provenance={'artifacts':[str(artifact)]}))
+        page=generate(self.reg,self.cfg,self.base).read_text(encoding='utf-8')
+        self.assertIn('../results/fixture.png',page)
+        self.assertNotIn('%5Cresults',page)
+
     def test_failure_isolation(self):
         self.write([self.d,dict(self.d,delivery_id='d2')])
         class Flaky:

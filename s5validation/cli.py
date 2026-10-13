@@ -26,6 +26,8 @@ def main(argv=None,default_base=None):
     modes.add_argument('--landsat-search',action='store_true',help='Search Landsat without downloading reference assets')
     modes.add_argument('--inventory-only',action='store_true',help='Inspect latest production deliveries without downloading')
     parser.add_argument('--product',help='Restrict to one product, e.g. S5-02-09')
+    parser.add_argument('--max-deliveries',type=int,help='Maximum campaign deliveries selected for --run; deterministic product/time order')
+    parser.add_argument('--acquired-from',help='Inclusive acquisition timestamp filter for --run; UTC offset required')
     parser.add_argument('--open-report',action='store_true')
     parser.add_argument('--as-of',help='Landsat search cutoff date YYYY-MM-DD (defaults to today in Europe/Rome)')
     parser.add_argument('--max-scenes',type=int,help='Optional maximum Landsat scenes to download during this launch')
@@ -37,6 +39,16 @@ def main(argv=None,default_base=None):
     args.workdir=(args.workdir or base/'validation').expanduser().resolve()
     if args.max_scenes is not None and args.max_scenes<=0:
         parser.error('--max-scenes must be positive')
+    if args.max_deliveries is not None and args.max_deliveries<=0:
+        parser.error('--max-deliveries must be positive')
+    if (args.max_deliveries is not None or args.acquired_from is not None) and not args.run:
+        parser.error('--max-deliveries and --acquired-from require --run (main.py selects it automatically)')
+    if args.acquired_from is not None:
+        from .pipeline import parse_time
+        try:
+            parse_time(args.acquired_from)
+        except (ValueError, TypeError):
+            parser.error('--acquired-from requires an ISO timestamp with UTC offset')
     registry = None
     try:
         config = json.loads(args.config.read_text(encoding='utf-8'))
@@ -58,7 +70,8 @@ def main(argv=None,default_base=None):
         registry = Registry(args.workdir/'validation.db')
         if args.run:
             from .operational import execute
-            operational_run=execute(registry,config,base,args.workdir,client,args.product,args.as_of,args.max_scenes)
+            operational_run=execute(registry,config,base,args.workdir,client,args.product,args.as_of,args.max_scenes,
+                                    max_deliveries=args.max_deliveries,acquired_from=args.acquired_from)
         if args.landsat or args.landsat_search:
             from datetime import datetime
             from zoneinfo import ZoneInfo

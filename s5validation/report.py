@@ -104,12 +104,12 @@ def generate(registry, config, workdir, product=None):
         evidence += '</section>'
     current = {(row['product'],row['delivery_id']):row for row in rows}
     for p,cfg in config['products'].items():
-        if cfg.get('adapter') in ('sentinel2_scl','aeronet_station_day'):
-            observations=[(row['acquired_at'],json.loads(row['metrics'])) for row in current.values() if row['product']==p and row['status']=='DIAGNOSTIC']
+        if cfg.get('adapter') in ('sentinel2_scl','aeronet_station_day','era5_land_ssrd'):
+            observations=[(row['acquired_at'],json.loads(row['metrics'])) for row in current.values() if row['product']==p and row['status'] in ('DIAGNOSTIC','PROCESSED')]
             if len(observations)>=2:
                 from .evidence import make_trend
                 path=make_trend(observations,workdir/'report',p,cfg['kind'],cfg['units'])
-                evidence += '<section><h2>'+esc(p)+' · metrics over time</h2><img style="max-width:100%;width:700px" src="'+esc(quote(path.name))+'" alt="Diagnostic metrics over time"></section>'
+                evidence += '<section><h2>'+esc(p)+' · metrics over time</h2><img style="max-width:100%;width:700px" src="'+esc(quote(path.name))+'" alt="Metrics over time"></section>'
             continue
         if cfg.get('adapter')!='landsat_l2' or cfg.get('units')!='degree_Celsius':
             continue
@@ -126,7 +126,7 @@ def generate(registry, config, workdir, product=None):
 <main><h1>S5-02 Validation</h1><p>Manually launched · persistent local registry · product adapters configured individually</p><p>Campaign: {esc(campaign['start'] or 'not configured')} → {esc(campaign['end'] or 'not configured')}</p>
 <div class="notice"><b>Methodology decisions still required</b><ul>{''.join('<li>'+esc(b)+'</li>' for b in blockers)}</ul><p>Sample coverage and scientific accuracy are separate requirements. No overall acceptance or three-month compliance is inferred.</p></div>
 <p>Delivery states: {esc(dict(counts)) if counts else 'No deliveries registered'}</p><div class="grid">{cards}</div>
-<h2>Reference evidence and diagnostic comparisons</h2>{evidence}<h2>Delivery registry</h2><div class="scroll"><table><thead><tr>{''.join('<th>'+x+'</th>' for x in ['Product','Delivery','Revision','Acquisition','Validation','Reference','Reason','Metrics'])}</tr></thead><tbody>{table}</tbody></table></div>
+<h2>Reference evidence and comparisons</h2>{evidence}<h2>Delivery registry</h2><div class="scroll"><table><thead><tr>{''.join('<th>'+x+'</th>' for x in ['Product','Delivery','Revision','Acquisition','Validation','Reference','Reason','Metrics'])}</tr></thead><tbody>{table}</tbody></table></div>
 <p class="muted">Configuration source: {esc(config['methodology_source'])}. Diagnostic pairs and plots are available above when reference QA yields sufficient coverage. Diagnostic comparisons do not count towards accepted campaign samples.</p></main></html>'''
     report = workdir/'report'/'validation_report.html'
     report.parent.mkdir(parents=True,exist_ok=True)

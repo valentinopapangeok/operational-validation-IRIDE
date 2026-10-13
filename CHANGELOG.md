@@ -25,3 +25,12 @@
 - Added public Sentinel-2 SCL-only download, conservative pixel QA, native snow-cell aggregation, overlap deduplication, binary metrics and evidence.
 - Added AERONET V3 download, explicit quality levels, provisional 550 nm spectral matching and station-day aggregation with paired CSV and diagnostic plots.
 - Integrated both into the no-argument main workflow and product-specific report trends; added scientific tests and methodology/credential guides.
+
+## Solar radiation adapter
+
+- Integrated the existing product 03 hourly diagnostic DNI/SSRD method with operational CDS downloads, verified daily reference cache, registry, paired CSV, plots and report trends.
+- Preserved original rectangle, reference-mean normalization, midnight reset and hour-23 exclusion. Added scaled-raster handling and offline scientific/provider/lifecycle tests.
+
+## Solar processing label
+
+- Replaced solar runtime DIAGNOSTIC labels with PROCESSED; removed diagnostic metric flag and runtime scientific caveats, preserving methodology documentation and zero accepted-sample accounting. Historical results are retained; shared retry and report handling support PROCESSED.

@@ -216,7 +216,7 @@
     "S5-02-03": {
       "name": "Solar Radiation",
       "kind": "continuous",
-      "adapter": null,
+      "adapter": "era5_land_ssrd",
       "reference": "ERA5-Land",
       "sample_unit": "hourly production",
       "sample_target": 30,
@@ -237,8 +237,8 @@
       "temporal_tolerance_seconds": null,
       "minimum_valid_pairs": null,
       "minimum_valid_overlap_fraction": null,
-      "reference_quality_policy": null,
-      "units": null,
+      "reference_quality_policy": "era5-land-hourly-v2",
+      "units": "Wh/m2",
       "gosat_min_italy_coverage": null,
       "plots": [
         "scatter",
@@ -1118,5 +1118,28 @@
     "relative_rmse_normalization": "mean_reference_in_data_units",
     "spatial_match": "containing_native_pixel",
     "method_status": "draft"
+  },
+  "solar": {
+    "method_version": "era5-land-hourly-v2",
+    "product_quantity": "direct_normal",
+    "product_unit": "Wh/m2",
+    "bounds": [
+      6.5,
+      35.3,
+      18.7,
+      47.2
+    ],
+    "minimum_coverage_fraction": 0.0,
+    "minimum_pairs": 1,
+    "excluded_utc_hours": [
+      23
+    ],
+    "normalization": "absolute_mean_reference",
+    "source": {
+      "repository": "iride-input-availability",
+      "script": "input_availability/validation_data/03/validate_hour.py",
+      "sha256": "939cf753cc5a0e2625165d3c5ae5e95c75475cd878115e707b963c40720ce0a6",
+      "status": "ported hourly comparison"
+    }
   }
 }

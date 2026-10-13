@@ -21,6 +21,7 @@ A crash before commit leaves the delivery retryable. Cache artifacts should be w
 | PENDING_REFERENCE | Reference search found no usable candidate yet | Search again |
 | REJECTED_QA | Candidates fail QA or collocation | Recheck and retain reason |
 | ERROR | Operational failure | Retry |
+| PROCESSED | Comparison metrics/evidence stored (solar); no accepted campaign samples | Retry/cache reuse |
 | DIAGNOSTIC | Provisional metrics/evidence; no accepted samples | Retry/cache reuse |
 | OUTSIDE_CAMPAIGN | Delivery acquisition outside configured interval | Skip; use a fresh workdir for a changed campaign |
 | COMPLETE | Matchups and metrics committed with provenance | Skip current revision |

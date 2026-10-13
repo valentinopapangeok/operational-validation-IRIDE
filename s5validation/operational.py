@@ -21,12 +21,24 @@ def preflight(config,base,product=None,client=None):
     return client
 
 
-def execute(registry,config,base,workdir,client,product=None,as_of=None,max_scenes=None):
+def execute(registry,config,base,workdir,client,product=None,as_of=None,max_scenes=None,max_deliveries=None,acquired_from=None):
+    from .pipeline import parse_time
+    if max_deliveries is not None and max_deliveries <= 0:
+        raise ValueError('max_deliveries must be positive')
+    lower = parse_time(acquired_from) if acquired_from is not None else None
     from .adapters import register
     from .pipeline import ADAPTERS
     register(config,base)
     found,errors=inventory_campaign(client,config,product)
-    summary={'deliveries_found':len(found),'new':0,'already_complete':0,
+    total_found=len(found)
+    found=sorted(found,key=lambda item:(item['product'],item['acquired_at'],item['delivery_id']))
+    if lower is not None:
+        found=[item for item in found if parse_time(item['acquired_at']) >= lower]
+    if max_deliveries is not None:
+        found=found[:max_deliveries]
+    if max_deliveries is not None or lower is not None:
+        print(f'Selected {len(found)} of {total_found} campaign deliveries for this run',flush=True)
+    summary={'deliveries_found':total_found,'deliveries_selected':len(found),'selection':{'max_deliveries':max_deliveries,'acquired_from':acquired_from},'new':0,'already_complete':0,
              'production_downloaded':0,'production_reused':0,'references_downloaded':0,
              'errors':errors,'pending_configuration':0}
     manifest=Path(config['delivery']['manifest'])
@@ -95,7 +107,7 @@ def execute(registry,config,base,workdir,client,product=None,as_of=None,max_scen
     save_json(workdir/'inventory'/'campaign_products.json',{'items':found,'errors':errors,'receipts':receipts})
     save_json(workdir/'inventory'/'operational_run.json',summary)
     print('IRIDE S5-02 OPERATIONAL VALIDATION')
-    for key in ('deliveries_found','new','already_complete','production_downloaded','production_reused','references_downloaded','pending_configuration'):
+    for key in ('deliveries_found','deliveries_selected','new','already_complete','production_downloaded','production_reused','references_downloaded','pending_configuration'):
         print(f'  {key.replace("_"," ")}: {summary[key]}')
     print('  Delivery states: '+str(states))
     print(f"  Errors: {len(summary['errors'])}")

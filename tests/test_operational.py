@@ -127,4 +127,33 @@ class OperationalTests(unittest.TestCase):
             with self.assertRaises(SystemExit):runpy.run_path(str(base/'main.py'),run_name='__main__')
             entry.assert_called_once_with(['--run'],default_base=base)
 
+    def test_bounded_selection_limits_downloads_and_preserves_other_manifest_entries(self):
+        class Adapter:
+            def validate(self,d,cfg,workdir):return Outcome('PENDING_REFERENCE','fixture','NOT_AVAILABLE')
+        with tempfile.TemporaryDirectory() as directory,patch.dict(ADAPTERS,{'fixture':Adapter()},clear=True):
+            base=Path(directory);config=self.config();storage=self.storage()
+            unrelated={'product':'S5-02-01','delivery_id':'retained','revision':'v1','uri':'existing.tif','acquired_at':'2026-10-10T00:00:00+00:00'}
+            (base/'deliveries.json').write_text(json.dumps([unrelated]))
+            registry=Registry(base/'validation.db')
+            try:
+                result=execute(registry,config,base,base,storage,max_deliveries=1,acquired_from='2026-10-02T00:00:00Z')
+                self.assertEqual(result['deliveries_found'],2);self.assertEqual(result['deliveries_selected'],1)
+                processed=[r for r in registry.rows() if r['status']!='DISCOVERED']
+                self.assertEqual(len(processed),1);self.assertTrue(processed[0]['acquired_at'].startswith('2026-10-05'))
+                self.assertEqual(result['production_downloaded'],1)
+                entries=json.loads((base/'deliveries.json').read_text());self.assertIn(unrelated,entries)
+                self.assertEqual(len(json.loads((base/'inventory/campaign_products.json').read_text())['items']),1)
+                again=execute(registry,config,base,base,storage,max_deliveries=1,acquired_from='2026-10-02T00:00:00Z')
+                self.assertEqual(again['production_reused'],1)
+                empty=execute(registry,config,base,base,storage,max_deliveries=1,acquired_from='2026-12-01T00:00:00Z')
+                self.assertEqual(empty['deliveries_selected'],0);self.assertEqual(empty['processing']['attempts'],0)
+            finally:registry.close()
+
+    def test_trial_cli_rejects_invalid_limits_before_network_access(self):
+        from s5validation.cli import main
+        for arguments in (['--run','--max-deliveries','0'],['--status','--max-deliveries','1'],['--run','--acquired-from','2026-10-01']):
+            with patch('s5validation.operational.preflight',side_effect=AssertionError('network accessed')):
+                with self.assertRaises(SystemExit) as caught:main(arguments)
+                self.assertEqual(caught.exception.code,2)
+
 if __name__=='__main__':unittest.main()

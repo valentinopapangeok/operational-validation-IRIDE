@@ -27,3 +27,12 @@ shapely==2.2.0
 six==1.17.0
 urllib3==2.8.0
 tzdata>=2024.1; sys_platform == "win32"
+
+# Product 03 ERA5-Land reader and CDS client (offline integration verified)
+h5py==3.16.0
+cdsapi==0.7.7
+ecmwf-datastores-client==0.5.3
+multiurl==0.3.9
+typing_extensions==4.16.0
+pytz==2026.5
+tqdm==4.70.1

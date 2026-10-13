@@ -84,3 +84,15 @@ Never run concurrent launches sharing a manifest/workdir. Back up the registry a
 ## Operational campaign launch
 
 `python main.py` (no parameters) and `iride-validate --run` perform production preflight, campaign-wide discovery, selective verified downloads, reference refresh, processing and report generation. See [PyCharm guide](PYCHARM.md). Specialist/local modes retain their existing behavior. A failed preflight makes no registry changes; individual provider or delivery failures are recorded and do not stop other deliveries.
+
+## Product 03 solar radiation
+
+See [Solar methodology](SOLAR.md). Install updated `.[scientific]` dependencies (h5py and cdsapi). `main.py --product S5-02-03` refreshes needed CDS ERA5-Land daily files before local comparisons. Ordinary `iride-validate --product S5-02-03` remains offline. Results are diagnostic only.
+
+## Bounded operational trial
+
+```bash
+python main.py --product S5-02-03 --acquired-from 2026-10-01T10:00:00Z --max-deliveries 3
+```
+
+The optional inclusive acquisition filter is applied to campaign inventory, then at most N deliveries are selected in product/time order. Downloads, reference refresh and scientific processing are limited to that selection, including already cached deliveries; repeated runs reuse the same subset rather than taking N new acquisitions. Full inventory search still runs. Without these options the full campaign behavior is unchanged. Select daylight hours for meaningful solar diagnostics; selection is for a functional trial, not a representative campaign sample. The existing cache is reused; other manifest entries and historical results are retained, so the report may include earlier work. `--max-scenes` is a separate Landsat-only limit. Stop an existing launcher before starting a trial in the same workdir.

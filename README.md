@@ -2,9 +2,11 @@
 
 Manually launched scientific validation for IRIDE S5-02 products. The pipeline downloads production deliveries and reference data, applies quality filters, collocates observations, calculates metrics, and keeps a local SQLite registry with reproducible evidence and HTML reports.
 
-**Implemented:** production downloads for all eleven products; Landsat 8/9 thermal reference downloads and preliminary comparisons for **01 LST, 02 SST, 10 downscaled LST and 11 downscaled SST**. **05 Snow Cover** now has Sentinel-2 SCL download/QA/native-cell comparisons; **09 AOD** has public AERONET download and provisional 550 nm station-day comparisons. Products **03, 04, 06, 07, 08** still need scientific adapters.
+**Implemented:** production downloads for all eleven products; Landsat 8/9 thermal reference downloads and preliminary comparisons for **01 LST, 02 SST, 10 downscaled LST and 11 downscaled SST**. **05 Snow Cover** now has Sentinel-2 SCL download/QA/native-cell comparisons; **09 AOD** has public AERONET download and provisional 550 nm station-day comparisons. Products **04, 06, 07, 08** still need scientific adapters.
 
-Thermal, snow and AOD results are currently **DIAGNOSTIC**. They do not count as accepted campaign acquisitions or establish overall compliance. The shipped campaign is **1 October–31 December 2026**. Thermal rRMSE uses the absolute mean paired reference temperature **in Celsius**; this convention is explicit and scale dependent.
+**03 Solar Radiation** also supports hourly DNI/ERA5-Land SSRD comparisons and CDS downloads; see [Solar methodology](docs/SOLAR.md).
+
+Thermal, snow and AOD results are currently **DIAGNOSTIC**; solar comparisons use **PROCESSED**. Neither status counts as accepted campaign acquisitions or establishes overall compliance. Solar comparisons retain the methodological limitations described in docs/SOLAR.md. The shipped campaign is **1 October–31 December 2026**. Thermal rRMSE uses the absolute mean paired reference temperature **in Celsius**; this convention is explicit and scale dependent.
 
 ## Quick start
 
@@ -24,7 +26,7 @@ iride-validate --status
 iride-validate --report --open-report
 ```
 
-The synthetic smoke test runs the actual thermal adapter, collocation, metrics, plots and registry **without credentials or network access**. Its generated report is `validation/smoke/report/validation_report.html`; these are explicitly synthetic measurements.
+The synthetic smoke test runs the actual thermal and solar adapters, collocation, metrics, plots and registry **without credentials or network access**. Its generated report is `validation/smoke/report/validation_report.html`; these are explicitly synthetic measurements.
 
 Windows and MinIO installation instructions are in [Installation](docs/INSTALLATION.md). The repository includes the exact land and marine AOI geometries and extracted validation-plan requirements. No private production data, caches, local absolute paths or real credentials are needed to clone and run the tests.
 
@@ -38,7 +40,7 @@ python main.py
 iride-validate --run
 ```
 
-Products 03, 04, 06, 07 and 08 remain `PENDING_CONFIGURATION` until their scientific adapters are implemented. Snow and AOD run automatically; AOD uses a provisional 550 nm setting. An operationally successful run does not imply accepted validation samples.
+Products 04, 06, 07 and 08 remain `PENDING_CONFIGURATION` until their scientific adapters are implemented. Solar, snow and AOD run automatically; AOD uses a provisional 550 nm setting. An operationally successful run does not imply accepted validation samples.
 
 ## Run against production
 

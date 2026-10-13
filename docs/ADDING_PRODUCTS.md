@@ -1,6 +1,6 @@
 # Adding a validation product
 
-The repository contains all eleven S5-02 requirement definitions. Products 03, 04, 06, 07 and 08 need scientific adapters. Products 05 and 09 have draft diagnostic adapters. Start with one product end to end, using synthetic/offline fixtures before optional real-data integration. Product frequency, reference availability, proposed observation volume and scientific accuracy are separate concerns.
+The repository contains all eleven S5-02 requirement definitions. Products 04, 06, 07 and 08 need scientific adapters. Products 05 and 09 have draft diagnostic adapters. Start with one product end to end, using synthetic/offline fixtures before optional real-data integration. Product frequency, reference availability, proposed observation volume and scientific accuracy are separate concerns.
 
 ## 1. Define the observable and method
 
@@ -18,6 +18,7 @@ Return `Outcome(status, reason, reference_status, samples, metrics, provenance)`
 - Reference found but insufficient QA/support: REJECTED_QA / AVAILABLE, with diagnostics.
 - Operational failure: exception (runner records ERROR) or ERROR.
 - Scientific method still provisional: DIAGNOSTIC / AVAILABLE, with metrics/evidence and **no accepted samples**.
+- Solar port: PROCESSED / AVAILABLE, metrics/evidence and no accepted samples; scientific caveats are documented in SOLAR.md.
 - Fully configured matchups: COMPLETE / AVAILABLE, with metrics, evidence and sample units. COMPLETE means processing/evidence are complete, not that target thresholds passed.
 
 Write artifacts to a safe revision/method-specific path under the supplied workdir. Reject unsafe path components, write metadata atomically, retain checksums and never serialize authentication tokens. Preserve full paired data with coordinates, time, reference identity, QA selection and units so metrics can be reproduced.

@@ -1,4 +1,4 @@
-"""Revision-scoped diagnostic evidence shared by nonthermal adapters."""
+"""Revision-scoped comparison evidence shared by nonthermal adapters."""
 import hashlib
 import json
 from pathlib import Path
@@ -31,7 +31,7 @@ def persist_outcome(folder,outcome):
     return outcome
 
 
-def plot_pairs(data,folder,title,unit):
+def plot_pairs(data,folder,title,unit,observation_label='Station-days'):
     import numpy as np
     import matplotlib
     matplotlib.use('Agg')
@@ -42,7 +42,7 @@ def plot_pairs(data,folder,title,unit):
     lo=min(float(p.min()),float(r.min()));hi=max(float(p.max()),float(r.max()))
     ax.plot([lo,hi],[lo,hi],color='gray',linestyle='--');ax.set(xlabel=f'Reference ({unit})',ylabel=f'Product ({unit})',title=title)
     path=folder/'scatter.png';fig.tight_layout();fig.savefig(path,dpi=140);plt.close(fig);paths.append(str(path.resolve()))
-    fig,ax=plt.subplots(figsize=(6,4));ax.hist(e,bins=min(30,max(3,len(e))));ax.set(xlabel=f'Product − reference ({unit})',ylabel='Station-days',title=title)
+    fig,ax=plt.subplots(figsize=(6,4));ax.hist(e,bins=min(30,max(3,len(e))));ax.set(xlabel=f'Product − reference ({unit})',ylabel=observation_label,title=title)
     path=folder/'difference_histogram.png';fig.tight_layout();fig.savefig(path,dpi=140);plt.close(fig);paths.append(str(path.resolve()))
     fig,ax=plt.subplots(figsize=(6,5));limit=max(float(np.max(np.abs(e))),1e-8)
     sc=ax.scatter(data['longitude'],data['latitude'],c=e,cmap='RdBu_r',vmin=-limit,vmax=limit,s=45)
@@ -61,7 +61,7 @@ def make_trend(observations,folder,product,kind,unit):
     keys=('f1','precision','recall_pod') if kind=='binary' else ('rmse','mae','bias')
     for key in keys:
         ax.plot(dates,[m.get(key) for t,m in observations],marker='o',label=key)
-    ax.set(ylabel='Score (0–1)' if kind=='binary' else unit,title=product+' · diagnostic metrics')
+    ax.set(ylabel='Score (0–1)' if kind=='binary' else unit,title=product+' · metrics')
     if kind=='binary':ax.set_ylim(0,1.05)
     ax.legend();ax.grid(alpha=.2);fig.autofmt_xdate();fig.tight_layout()
     path=folder/(product+'_metrics_over_time.png');fig.savefig(path,dpi=140);plt.close(fig)

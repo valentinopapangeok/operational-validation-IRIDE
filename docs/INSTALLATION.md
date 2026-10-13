@@ -55,3 +55,7 @@ Binary wheel availability differs by OS/architecture. If pip starts building GDA
 ## Minimal local inspection
 
 `python -m pip install -e .` installs just the registry/CLI functionality. `iride-validate --status` and an empty `--report` work without scientific libraries. Running thermal comparisons, plotting existing diagnostics, the full tests or smoke test requires the scientific extra. The repository configuration and AOIs must remain available; installed commands do not bundle or invent a campaign.
+
+## Product 03 solar radiation
+
+See [Solar methodology](SOLAR.md). Install updated `.[scientific]` dependencies (h5py and cdsapi). `main.py --product S5-02-03` refreshes needed CDS ERA5-Land daily files before local comparisons. Ordinary `iride-validate --product S5-02-03` remains offline. Results are diagnostic only.

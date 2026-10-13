@@ -14,3 +14,7 @@ Each operational launch inventories all campaign partitions and selects the high
 The console summary and `validation/inventory/operational_run.json` distinguish newly transferred production deliveries from verified cached deliveries, newly transferred reference scenes, current delivery states and errors. Successful execution can contain pending references or QA rejection; it does not establish scientific acceptance. The HTML report is rebuilt at the end, including partial results if a provider or delivery fails.
 
 A failed production preflight stops before initializing or modifying the registry. An unavailable public reference provider is recorded as an operational error; usable cached references may still be processed. Exit codes: 0 completed orchestration, 1 configuration/preflight failure, 2 partial operational failures. Run only one process per workdir. No scheduler or automatic VPN control is included.
+
+## Product 03 solar radiation
+
+See [Solar methodology](SOLAR.md). Install updated `.[scientific]` dependencies (h5py and cdsapi). `main.py --product S5-02-03` refreshes needed CDS ERA5-Land daily files before local comparisons. Ordinary `iride-validate --product S5-02-03` remains offline. Results are diagnostic only.

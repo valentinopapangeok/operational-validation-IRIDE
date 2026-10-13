@@ -6,6 +6,8 @@ def register(config,base):
     from .aod import AODAdapter
     from .references.sentinel2 import refresh_sentinel2
     from .references.aeronet import refresh_aeronet
+    from .solar import SolarAdapter
+    from .references.era5_land import refresh_era5_land
     selected={p.get('adapter') for p in config['products'].values()}
     # Recreate with this launch's config/base; avoid retaining a previous local trial.
     if 'sentinel2_scl' in selected:
@@ -14,3 +16,6 @@ def register(config,base):
     if 'aeronet_station_day' in selected:
         ADAPTERS['aeronet_station_day']=AODAdapter(config,base)
         REFERENCE_REFRESHERS['aeronet_station_day']=refresh_aeronet
+    if 'era5_land_ssrd' in selected:
+        ADAPTERS['era5_land_ssrd']=SolarAdapter(config,base)
+        REFERENCE_REFRESHERS['era5_land_ssrd']=refresh_era5_land

@@ -54,6 +54,35 @@ def smoke(workdir):
             raise RuntimeError('Synthetic diagnostics must never count as accepted samples')
         report=generate(with_registry,config,workdir,'S5-02-01')
         print('PASS: synthetic thermal adapter, QA, native-cell aggregation, metrics, plots and registry')
+        # Exercise product 03 through the same registry and report, with no provider access.
+        import h5py
+        from datetime import datetime, timezone
+        from s5validation.downloads import digest
+        solar_reference=workdir/'cache/reference/era5_land/synthetic.nc'
+        solar_reference.parent.mkdir(parents=True,exist_ok=True)
+        with h5py.File(solar_reference,'w') as f:
+            f['valid_time']=[int(datetime(2026,10,1,h,tzinfo=timezone.utc).timestamp()) for h in (9,10)]
+            f['valid_time'].attrs['units']='seconds since 1970-01-01'
+            f['latitude']=[44.,43.];f['longitude']=[10.,11.]
+            f['ssrd']=np.array([np.full((2,2),h*3600.) for h in (9,10)])
+            f['ssrd'].attrs['units']='J m**-2'
+        save_json(solar_reference.parent/'index.json',{'days':{'2026-10-01':{
+            'file':str(solar_reference),'sha256':digest(solar_reference),'dataset':'SYNTHETIC_ERA5_LAND'}}})
+        solar_product=workdir/'cache/s5/SYNTHETIC_SOLAR.tif'
+        with rasterio.open(solar_product,'w',driver='GTiff',height=2,width=2,count=1,dtype='float32',
+                           crs='EPSG:4326',transform=from_origin(9.5,44.5,1,1)) as ds:
+            ds.write(np.full((2,2),2,dtype='float32'),1)
+        save_json(workdir/'deliveries.json',[{'product':'S5-02-03','delivery_id':'SYNTHETIC_SOLAR',
+            'revision':'fixture-v1','uri':str(solar_product),'acquired_at':day}])
+        run(with_registry,config,base,workdir,'S5-02-03')
+        solar_row=with_registry.rows('S5-02-03')[0];solar_metrics=json.loads(solar_row['metrics'])
+        if solar_row['status']!='PROCESSED' or solar_metrics['n']!=4 or abs(solar_metrics['rmse']-1)>1e-6:
+            raise RuntimeError('Synthetic solar comparison failed: '+solar_row['reason'])
+        if with_registry.samples('S5-02-03'):
+            raise RuntimeError('Processed solar comparisons must not count as accepted samples')
+        report=generate(with_registry,config,workdir)
+        print('PASS: synthetic solar adapter, ERA5 de-accumulation, metrics, plots and shared registry/report')
+
         print('SYNTHETIC report: '+str(report))
     finally:
         with_registry.close()

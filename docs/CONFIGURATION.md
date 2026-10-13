@@ -44,7 +44,7 @@ This is a format example, not a measurement shipped with the repo. Keep one curr
 
 ## Scientific policy
 
-Each product includes its `kind`, `adapter`, units, reference, sample requirements, thematic/positional targets, required metrics and configuration placeholders. Products 01/02/10/11 use `landsat_l2`; other adapters are null.
+Each product includes its `kind`, `adapter`, units, reference, sample requirements, thematic/positional targets, required metrics and configuration placeholders. Products 01/02/10/11 use `landsat_l2`, 03 uses `era5_land_ssrd`, 05 uses `sentinel2_scl` and 09 uses `aeronet_station_day`; adapters for 04/06/07/08 remain null.
 
 Landsat policy is under `landsat`: catalogue/provider, platforms, required assets, exact AOIs, band number, QA flags, uncertainty/cloud-distance limits, minimum cell coverage, pair threshold and method version. QA is currently draft. Thermal rRMSE uses `relative_rmse_normalization: mean_reference_in_data_units`, equivalent to `100 * RMSE / abs(mean(paired reference °C))`. A zero denominator produces null; no unit conversion or near-zero epsilon is silently inserted. Fixed positive denominators are supported via the per-product `relative_rmse_denominator`, but do not configure both modes. Other products need their own normalization decisions.
 
@@ -63,3 +63,7 @@ Install the `dev` extra first. The importer reads without changing the workbook 
 ## Draft 05/09 policies
 
 `snow` controls explicit product/SCL classes, same-day selection, valid cell coverage, snow fraction and minimum pairs. `aeronet` controls provisional wavelength, quality-level preference, spectral matching and minimum station-day observations. These settings produce diagnostic results and do not fill the unresolved contractual policy fields. See [Snow](SNOW.md) and [AOD](AOD.md). No-argument `main.py` picks both adapters automatically from product configuration.
+
+## Product 03 solar radiation
+
+See [Solar methodology](SOLAR.md). Install updated `.[scientific]` dependencies (h5py and cdsapi). `main.py --product S5-02-03` refreshes needed CDS ERA5-Land daily files before local comparisons. Ordinary `iride-validate --product S5-02-03` remains offline. Results are diagnostic only.

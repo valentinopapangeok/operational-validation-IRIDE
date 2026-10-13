@@ -18,7 +18,7 @@ try:
     print('PASS: bundled AOIs verified; local directories and empty manifest initialized')
 except (OSError,ValueError,KeyError) as exc:
     failures.append(str(exc))
-for module in ('numpy','rasterio','pyproj','shapely','requests','matplotlib'):
+for module in ('numpy','rasterio','pyproj','shapely','requests','matplotlib','h5py','cdsapi'):
     try:
         importlib.import_module(module)
         print('PASS: '+module)

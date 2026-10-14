@@ -97,7 +97,7 @@ class SnowAODTests(unittest.TestCase):
         parts=[{'row':np.array([0]),'column':np.array([0]),'coverage_fraction':np.array([coverage]),
             'scene_id':np.array([name]),'reference':np.array([value])} for coverage,name,value in ((.6,'a',0),(.9,'b',1))]
         result=deduplicate_snow(parts)
-        self.assertEqual(len(result['row']),1);self.assertEqual(result['reference'][0],1)
+        self.assertEqual(len(result['row']),0)  # Conflicting reference labels are uncertain, not a vote.
 
     def test_snow_adapter_metrics_evidence_and_cached_qa(self):
         with tempfile.TemporaryDirectory() as directory:

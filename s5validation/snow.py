@@ -9,11 +9,22 @@ from .references.landsat import load_geometry,resolve_path
 from .evidence import result_folder,cached_outcome,persist_outcome
 from .thermal import support_area
 from .metrics import binary
+from .product_support import read_support,read_aligned
 
 
 def scl_valid(values,policy):
     import numpy as np
     return np.isin(values,policy['valid_scl_classes'])
+
+
+def reference_class(fraction, coverage, threshold):
+    """Bound full-cell snow area without assuming cloudy area is clear or snow-free."""
+    import numpy as np
+    lower=np.asarray(fraction)*np.asarray(coverage)
+    upper=np.minimum(1,lower+1-np.asarray(coverage))
+    snow=lower>=threshold
+    known=snow|(upper<threshold)
+    return snow,known,lower,upper
 
 
 def snow_collocate(product,record,aoi,policy):
@@ -37,6 +48,25 @@ def snow_collocate(product,record,aoi,policy):
         values=raw*s5.scales[band-1]+s5.offsets[band-1]
         inside=geometry_mask([transform_geom('EPSG:4326',s5.crs,aoi.__geo_interface__)],grid,transform,invert=True)
         valid_product=np.isfinite(values)&inside
+        support,_=read_support(product)
+        if support.get('quality_mask_raster'):
+            qa,scale,offset=read_aligned(s5,Path(product).parent/support['quality_mask_raster'])
+            if scale!=1 or offset!=0 or np.any(~np.isin(qa.compressed(),[0,1])):
+                raise ValueError('Product QA must be an unscaled 0/1 valid-observation mask')
+            subset=qa[row:row+height,col:col+width]
+            valid_product&=~np.ma.getmaskarray(subset)&(subset.data==1)
+        if support.get('observation_time_utc') or support.get('observation_time_raster'):
+            stamp=record.get('acquired_at')
+            if not stamp:raise ValueError('Reference acquisition time required for source-time matching')
+            reference_time=parse_time(stamp).timestamp()
+            if support.get('observation_time_utc'):
+                delta=abs(parse_time(support['observation_time_utc']).timestamp()-reference_time)
+                valid_product&=delta<=policy['temporal_tolerance_seconds']
+            else:
+                times,scale,offset=read_aligned(s5,Path(product).parent/support['observation_time_raster'])
+                subset=times[row:row+height,col:col+width]
+                physical=subset.data*scale+offset
+                valid_product&=~np.ma.getmaskarray(subset)&np.isfinite(physical)&(np.abs(physical-reference_time)<=policy['temporal_tolerance_seconds'])
         if np.any(valid_product&~np.isin(values,[policy['product_snow_class'],policy['product_no_snow_class']])):
             raise ValueError('Unexpected snow product class; update explicit mapping')
         counts=np.zeros(grid,dtype=np.int64);snow=np.zeros(grid,dtype=np.int64)
@@ -56,27 +86,36 @@ def snow_collocate(product,record,aoi,policy):
         area=support_area(transform,grid,s5.crs,scl.crs);pixel_area=abs(scl.transform.a*scl.transform.e)
         coverage=np.minimum(1,np.divide(counts*pixel_area,area,out=np.zeros(grid),where=area>0))
         fraction=np.divide(snow,counts,out=np.zeros(grid),where=counts>0)
-        selected=valid_product&(counts>0)&(coverage>=policy['minimum_cell_reference_coverage'])
+        reference,known,lower,upper=reference_class(fraction,coverage,policy['snow_fraction_threshold'])
+        eligible=valid_product&(counts>0)&(coverage>=policy['minimum_cell_reference_coverage'])
+        selected=eligible&known
         pr,pc=np.nonzero(selected)
         x=transform.a*(pc+.5)+transform.c;y=transform.e*(pr+.5)+transform.f
         lon,lat=Transformer.from_crs(s5.crs,'EPSG:4326',always_xy=True).transform(x,y)
         data={'predicted':(values[selected]==policy['product_snow_class']).astype(np.uint8),
-            'reference':(fraction[selected]>=policy['snow_fraction_threshold']).astype(np.uint8),
+            'reference':reference[selected].astype(np.uint8),
             'reference_snow_fraction':fraction[selected],'coverage_fraction':coverage[selected],
+            'full_cell_snow_lower_bound':lower[selected],'full_cell_snow_upper_bound':upper[selected],
             'row':pr+row,'column':pc+col,'longitude':np.asarray(lon),'latitude':np.asarray(lat)}
         return data,{'reference_pixels_tested':tested,'reference_pixels_after_qa':qa_count,'paired_native_cells':len(pr),
+            'ambiguous_partial_cells_excluded':int((eligible&~known).sum()),
             'scl_pixel_size_m':abs(scl.transform.a),'coverage_is_approximate':True,'s5_crs':str(s5.crs)}
 
 
-def deduplicate_snow(parts):
-    """One pair per native S5 cell/day, highest clear reference coverage first."""
+def deduplicate_snow(parts,return_info=False):
+    """Exclude conflicting reference labels before choosing one clear tile per cell."""
     import numpy as np
-    if not parts:return None
+    if not parts:return (None,{'conflicting_reference_cells_excluded':0}) if return_info else None
     result={k:np.concatenate([p[k] for p in parts]) for k in parts[0]}
     order=np.lexsort((result['scene_id'],-result['coverage_fraction'],result['column'],result['row']))
     first=np.ones(len(order),dtype=bool)
     first[1:]=(result['row'][order][1:]!=result['row'][order][:-1])|(result['column'][order][1:]!=result['column'][order][:-1])
-    return {k:v[order[first]] for k,v in result.items()}
+    starts=np.flatnonzero(first); labels=result['reference'][order]
+    conflicting=np.minimum.reduceat(labels,starts)!=np.maximum.reduceat(labels,starts)
+    selected=order[starts[~conflicting]]
+    data={k:v[selected] for k,v in result.items()}
+    info={'conflicting_reference_cells_excluded':int(conflicting.sum())}
+    return (data,info) if return_info else data
 
 
 def snow_plots(data,metrics,folder,day):
@@ -121,9 +160,12 @@ class SnowAdapter:
             if digest(Path(asset['local_path']))!=asset['sha256']:
                 raise ValueError('Cached SCL checksum mismatch; run main.py to repair')
         aoi_path=resolve_path(self.base,campaign['aoi_file']);aoi=load_geometry(aoi_path)
+        support,support_hashes=read_support(delivery.uri)
         inputs={'delivery_sha256':digest(Path(delivery.uri)),'revision':delivery.revision,'policy':policy,'campaign':campaign,
+            'delivered_support':support,'support_sha256':support_hashes,
             'aoi_sha256':digest(aoi_path),'scenes':[(s['scene_id'],s['revision'],s['assets']['SCL']['sha256']) for s in sorted(scenes,key=lambda s:s['scene_id'])],
-            'implementation_sha256':digest(Path(__file__)),'metrics_sha256':digest(Path(__file__).parent/'metrics.py')}
+            'implementation_sha256':digest(Path(__file__)),'metrics_sha256':digest(Path(__file__).parent/'metrics.py'),
+            'support_implementation_sha256':digest(Path(__file__).parent/'product_support.py')}
         folder,signature=result_folder(delivery,workdir,'sentinel2_scl',inputs);previous=cached_outcome(folder)
         if previous:return previous
         parts=[];details=[];artifacts=[]
@@ -132,20 +174,27 @@ class SnowAdapter:
             pairs,detail=snow_collocate(Path(delivery.uri),scene,aoi,policy);detail['scene_id']=scene['scene_id'];details.append(detail)
             if pairs is None or len(pairs['predicted'])<policy['minimum_pairs_per_scene']:continue
             pairs['scene_id']=np.full(len(pairs['predicted']),scene['scene_id'])
+            pairs['reference_acquired_at']=np.full(len(pairs['predicted']),scene.get('acquired_at','unknown'))
             scene_path=folder/(scene['scene_id']+'_pairs.npz');np.savez_compressed(scene_path,**pairs);artifacts.append(str(scene_path.resolve()));parts.append(pairs)
         detail_path=folder/'scene_results.json';save_json(detail_path,details);artifacts.append(str(detail_path.resolve()))
-        provenance={'method':'sentinel2_scl_native_snow_v1_draft','method_signature':signature,'inputs':inputs,'artifacts':artifacts,
-            'support':'20 m QA-valid SCL centres aggregated in each native S5 cell; one highest-coverage tile per cell/day',
+        provenance={'method':policy['policy_version'],'method_signature':signature,'inputs':inputs,'artifacts':artifacts,
+            'delivered_support':support,
+            'support':'20 m clear SCL centres; full-cell snow-area bounds; conflicting overpasses excluded',
             'acceptance_blockers':['Same-day matching, SCL class exclusions and majority/coverage thresholds are draft policies',
                 'North/Center/South boundaries, positional tolerance and KPI aggregation are unresolved',
                 'Partial Italy reference coverage does not establish campaign representativeness'],
             'reference_downloads_incomplete':len(scenes)!=record['candidate_count']}
-        pooled=deduplicate_snow(parts)
+        pooled,conflicts=deduplicate_snow(parts,return_info=True)
+        provenance.update(conflicts)
         if pooled is None or len(pooled['predicted'])<policy['minimum_pairs_per_delivery']:
             return persist_outcome(folder,Outcome('REJECTED_QA','SCL scenes exist but no sufficient clear native-cell matchups survive QA','AVAILABLE',provenance=provenance))
         pair_path=folder/'paired_data.npz';np.savez_compressed(pair_path,**pooled);provenance['artifacts'].append(str(pair_path.resolve()))
         metrics=binary(pooled['predicted'].tolist(),pooled['reference'].tolist())
         metrics.update(unit='binary_snow',diagnostic_only=True,reference_scenes=len(parts),
+            product_qa_verified=bool(support.get('quality_mask_raster')),
+            temporal_matching_verified=bool(support.get('observation_time_utc') or support.get('observation_time_raster')),
+            ambiguous_partial_cells_excluded=sum(d.get('ambiguous_partial_cells_excluded',0) for d in details),
+            **conflicts,
             predicted_snow_cells=int(pooled['predicted'].sum()),reference_snow_cells=int(pooled['reference'].sum()))
         metric_path=folder/'metrics.json';save_json(metric_path,metrics);provenance['artifacts'].append(str(metric_path.resolve()))
         provenance['artifacts']+=snow_plots(pooled,metrics,folder,day)

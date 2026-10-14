@@ -17,11 +17,14 @@ class SolarAdapter:
 
     def validate(self, delivery, cfg, workdir):
         import numpy as np
-        from .solar_core import utc_timestamp, read_ssrd, grid_transform, product_on_reference_grid
+        from .solar_core import utc_timestamp, read_ssrd, grid_transform, product_on_reference_grid,deaccumulate
         policy = self.config['solar']; campaign = self.config['campaign']
         instant = utc_timestamp(delivery.acquired_at)
         if not parse_time(campaign['start']) <= instant < parse_time(campaign['end']):
             return Outcome('OUTSIDE_CAMPAIGN', 'Delivery outside active campaign')
+        if not policy.get('allow_incompatible_ssrd_crosscheck',False):
+            return Outcome('PENDING_CONFIGURATION','DNI and ERA5-Land SSRD are different quantities; use the CAMS BNI adapter',
+                           'CONFIGURATION_REQUIRED')
         if policy.get('normalization') != 'absolute_mean_reference':
             return Outcome('PENDING_CONFIGURATION', 'Only inherited reference-mean normalization is implemented')
         if policy['product_quantity'] != 'direct_normal' or policy['product_unit'] != 'Wh/m2':
@@ -55,14 +58,12 @@ class SolarAdapter:
             if record not in receipts: receipts.append(record)
         current, lat, lon = fields[-1]
         if len(fields) == 1:
-            hourly_j = current
+            hourly_j = deaccumulate(current)
         else:
             prior, prior_lat, prior_lon = fields[0]
             if not (np.array_equal(lat, prior_lat) and np.array_equal(lon, prior_lon)):
                 raise ValueError('ERA5-Land grids differ between validity hours')
-            hourly_j = current - prior
-        if np.any(hourly_j[np.isfinite(hourly_j)] < -1):
-            raise ValueError('Negative de-accumulated SSRD; check accumulation semantics')
+            hourly_j = deaccumulate(current,prior)
         reference = np.maximum(hourly_j, 0) / 3600
         inputs = {'policy': policy, 'campaign': campaign, 'acquired_at': instant.isoformat(),
                   'product_sha256': digest(Path(delivery.uri)), 'receipts': receipts,

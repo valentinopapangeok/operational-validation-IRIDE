@@ -23,3 +23,9 @@ RMSE, MAE, bias and predictive R² use the paired station-days. rRMSE = `100 × 
 Each revision/method folder contains `paired_station_days.csv`, `station_days.json` with all contributing UTC times and spectral methods, `metrics.json`, scatter, difference histogram and station difference map. Source raw response files, query parameters, levels and checksums are preserved under `cache/reference/aeronet`; the outcome records them and artifact hashes. The report includes diagnostic trends when multiple dates exist.
 
 Confirm the product wavelength, temporal/spatial matching and QA policies, North/Center/South boundaries, KPI aggregation and positional tolerance before counting accepted validation samples. All current outcomes are **DIAGNOSTIC** with no accepted samples. The plan proposes 15 valid station-days, five per sub-AOI, not 15 individual AERONET observations.
+
+## Corrected support and diagnostics (v2)
+
+[Delivered support](PRODUCT_SUPPORT.md) can confirm wavelength and provide native-grid QA and actual pixel times. With verified time, select AERONET observations within ±30 minutes. Without time, retain the existing daily mean as an explicitly exploratory diagnostic; do not invent an overpass from file-level input timestamps. A delivered/configured wavelength conflict blocks comparison.
+
+The containing-pixel comparison remains the baseline. A separate `spatial_neighborhood_metrics` evaluates a 3×3 native-pixel mean using finite, nonnegative, QA-valid values and at least 75% of the full expected neighborhood. Border/masked cells reduce coverage. Neighborhood station counts and standard deviation are recorded; this sensitivity does not replace the baseline or select whichever result passes. Missing wavelength, QA and time support each have independent verification flags. All Level 1.5 results remain preliminary.

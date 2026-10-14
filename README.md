@@ -4,9 +4,9 @@ Manually launched scientific validation for IRIDE S5-02 products. The pipeline d
 
 **Implemented:** production downloads for all eleven products; Landsat 8/9 thermal reference downloads and preliminary comparisons for **01 LST, 02 SST, 10 downscaled LST and 11 downscaled SST**. **05 Snow Cover** now has Sentinel-2 SCL download/QA/native-cell comparisons; **09 AOD** has public AERONET download and provisional 550 nm station-day comparisons. Products **04, 06, 07, 08** still need scientific adapters.
 
-**03 Solar Radiation** also supports hourly DNI/ERA5-Land SSRD comparisons and CDS downloads; see [Solar methodology](docs/SOLAR.md).
+**03 Solar Radiation** also supports equivalent hourly DNI/CAMS BNI cross-checks and ADS downloads; see [Solar methodology](docs/SOLAR_CAMS.md).
 
-Thermal, snow and AOD results are currently **DIAGNOSTIC**; solar comparisons use **PROCESSED**. Neither status counts as accepted campaign acquisitions or establishes overall compliance. Solar comparisons retain the methodological limitations described in docs/SOLAR.md. The shipped campaign is **1 October–31 December 2026**. Thermal rRMSE uses the absolute mean paired reference temperature **in Celsius**; this convention is explicit and scale dependent.
+Thermal, snow and AOD results are currently **DIAGNOSTIC**; solar comparisons use **PROCESSED**. Neither status counts as accepted campaign acquisitions or establishes overall compliance. Solar comparisons retain the methodological limitations described in docs/SOLAR_CAMS.md. The shipped campaign is **1 October–31 December 2026**. Thermal rRMSE uses the absolute mean paired reference temperature **in Celsius**; this convention is explicit and scale dependent.
 
 ## Quick start
 
@@ -80,6 +80,8 @@ iride-validate --product S5-02-02
 | [Architecture](docs/ARCHITECTURE.md) | Registry states and integration contracts |
 | [Snow methodology](docs/SNOW.md) | Sentinel-2 SCL mapping, QA and native-cell comparison |
 | [AOD methodology](docs/AOD.md) | Wavelength, AERONET levels and station-day comparison |
+| [Delivered support](docs/PRODUCT_SUPPORT.md) | Optional production QA/time/wavelength assets downloaded automatically |
+| [Solar methodology](docs/SOLAR_CAMS.md) | Equivalent DNI/BNI cross-check and ADS access |
 | [Landsat methodology](docs/LANDSAT.md) | Scaling, QA, spatial support, rRMSE and limitations |
 | [Requirements](docs/REQUIREMENTS.md) | Imported workbook targets and sampling requirements |
 | [Testing](docs/TESTING.md) | Offline checks, clean installs and optional integration tests |

@@ -66,4 +66,4 @@ Install the `dev` extra first. The importer reads without changing the workbook 
 
 ## Product 03 solar radiation
 
-See [Solar methodology](SOLAR.md). Install updated `.[scientific]` dependencies (h5py and cdsapi). `main.py --product S5-02-03` refreshes needed CDS ERA5-Land daily files before local comparisons. Ordinary `iride-validate --product S5-02-03` remains offline. Results are diagnostic only.
+See [Solar methodology](SOLAR_CAMS.md). Install updated `.[scientific]` dependencies (h5py and cdsapi). `main.py --product S5-02-03` refreshes equivalent CAMS BNI time series using ADS_KEY in the existing downloader file before local comparisons. Ordinary `iride-validate --product S5-02-03` remains offline. Solar results are PROCESSED cross-checks, with zero accepted samples.

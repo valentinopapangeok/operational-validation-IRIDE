@@ -1,5 +1,7 @@
 # Product 03 solar radiation
 
+**Legacy method, superseded by [DNI/CAMS BNI](SOLAR_CAMS.md).** Blocked by default because DNI and SSRD differ. Explicit reproduction requires a separate configuration selecting `era5_land_ssrd` and `solar.allow_incompatible_ssrd_crosscheck=true`. The old −1 J/m² tolerance described below is now two local float32 spacings, with a 1 J/m² minimum and hard 5 J/m² cap. Material negatives still fail. Historical evidence is retained.
+
 The `era5_land_ssrd` adapter ports `iride-input-availability` product 03 `validate_hour.py` into the common operational launcher, verified cache, SQLite registry and HTML report. The source script SHA-256 is recorded in `solar.source`; no other checkout or historical measurements are runtime dependencies.
 
 ## Method and limitations

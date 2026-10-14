@@ -8,9 +8,9 @@ The default method is **draft and DIAGNOSTIC**. Same-day matching is appropriate
 
 SCL **11** represents snow/ice. Classes **4 and 5** are clear non-snow land. Classes 0–3 and 6–10 are excluded (nodata, defective, shadows, water, unclassified, cloud and cirrus). This intentionally conservative land-only mapping needs scientific approval. The official [Copernicus SCL documentation](https://sentiwiki.copernicus.eu/web/s2-processing) defines these classes; the [product documentation](https://sentiwiki.copernicus.eu/web/s2-products) describes known SCL limitations.
 
-The 20 m QA-valid SCL pixel centres are accumulated into each **native S5 cell**. At least 50% approximate clear reference area is required. A native cell is reference snow when at least 50% of its valid SCL centres are class 11. Defaults require 30 pairs per tile and per delivery. These thresholds are configurable draft settings under `snow`, not requirements inferred from the workbook.
+The 20 m QA-valid SCL pixel centres are accumulated into each **native S5 cell**. At least 90% approximate clear reference area is required. Whole-cell snow bounds account for the remaining unknown area: classify only when the lower/upper bounds establish snow/no-snow at the 50% threshold. Ambiguous partial cells are excluded. Defaults require 30 pairs per tile and per delivery. These thresholds are configurable draft settings under `snow`, not requirements inferred from the workbook.
 
-Overlapping tiles/overpasses produce **one pair per S5 cell per day**: the tile with highest clear reference coverage wins, with scene ID as deterministic tie-breaker. Tile fragments are not combined. Reference centre area is approximate across projections, and results only describe the matched footprint. Cloud coverage is screened per pixel; no scene cloud-percentage shortcut removes snowy scenes.
+Overlapping tiles/overpasses produce **one pair per S5 cell per day**: conflicting binary reference labels are excluded; otherwise the tile with highest clear coverage wins, with scene ID as deterministic tie-breaker. Tile fragments are not combined. Reference centre area is approximate across projections, and results only describe the matched footprint. Cloud coverage is screened per pixel; no scene cloud-percentage shortcut removes snowy scenes.
 
 ## Evidence and metrics
 
@@ -19,3 +19,9 @@ Each revision/method folder contains per-scene pair archives, pooled `paired_dat
 F1 is the required thematic metric (target ≥0.8). Precision, recall, accuracy, IoU and false-alarm ratio are diagnostic. With no positive snow in either input, F1 is **unavailable**, not automatically 1. A snow-free comparison can remain useful evidence but does not independently establish snow detection performance. Pixels and tiles are not independent campaign acquisitions.
 
 North/Center/South boundaries, temporal and QA policies, campaign KPI aggregation and positional tolerance remain unresolved. DIAGNOSTIC outcomes add **no accepted samples**. The plan proposes 15 valid acquisitions, five per sub-AOI; spatial distribution and snowy/snow-free seasonal representation must still be assessed.
+
+## Corrected native-cell policy (v2)
+
+Default clear coverage is now 90%. With clear fraction C and snow fraction F among clear pixels, whole-cell snow is bounded by CF and CF+1−C. Classify snow only if the lower bound reaches the 50% threshold, or no-snow if the upper bound is below it; exclude ambiguous cells. Cloudy area is never implicitly snow-free. If overlapping overpasses disagree on the binary reference class, exclude that native cell rather than choosing a favourable label. Retain bounds, excluded counts and reference acquisition times in evidence. These are provisional scientific policies, not altered workbook targets.
+
+[Delivered support](PRODUCT_SUPPORT.md) allows product QA and actual source-time screening. Missing product QA/time is explicit in metrics and remains a limitation; same-day SCL matching does not establish that a cloud-gap-filled product used a same-day observation. Per-scene ambiguous counts can include overlapping cells; the conflicting-cell count is deduplicated.

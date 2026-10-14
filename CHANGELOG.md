@@ -1,5 +1,14 @@
 # Changelog
 
+## Validation method corrections
+
+- Default solar reference is now equivalent hourly CAMS all-sky BNI, using existing ADS credentials, exact-AOI fixed points, explicit screening and all-condition audit metrics; incompatible SSRD comparisons are blocked by default.
+- Legacy small negative energy handling is precision-aware and capped.
+- Snow uses full-cell snow-area bounds, 90% clear coverage and excludes conflicting overpasses.
+- Snow/AOD use optional delivered QA/time/wavelength support; missing support stays diagnostic. AOD adds supplementary 3×3 metrics without replacing the baseline.
+- Added regression tests, equivalent-observable smoke coverage and portable guides; no accepted samples are added.
+
+
 ## 0.1.0
 
 - Standalone portable package and `iride-validate` command.

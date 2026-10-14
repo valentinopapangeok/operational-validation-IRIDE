@@ -42,6 +42,8 @@ def reference_file(path, zero=False, missing=None, invalid_units=False, negative
 class SolarTests(unittest.TestCase):
     def fixture(self, root, hour=2, zero=False):
         config = json.loads((BASE/'config/validation.json').read_text())
+        config['products']['S5-02-03']['adapter']='era5_land_ssrd'
+        config['solar'].update(allow_incompatible_ssrd_crosscheck=True,minimum_pairs=1,method_version='legacy-ssrd-test')
         product = root/'product.tif'
         with rasterio.open(product, 'w', driver='GTiff', width=2, height=2, count=1, dtype='float32',
                            crs='EPSG:4326', transform=from_origin(9.5,44.5,1,1), nodata=-9999.) as f:

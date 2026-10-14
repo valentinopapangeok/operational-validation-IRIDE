@@ -216,8 +216,8 @@
     "S5-02-03": {
       "name": "Solar Radiation",
       "kind": "continuous",
-      "adapter": "era5_land_ssrd",
-      "reference": "ERA5-Land",
+      "adapter": "cams_bni",
+      "reference": "CAMS all-sky hourly direct-normal irradiation (BNI); provisional equivalent-observable cross-check; ERA5-Land plan deviation",
       "sample_unit": "hourly production",
       "sample_target": 30,
       "target_type": "proposed_minimum",
@@ -1082,7 +1082,7 @@
     "credentials_file": null
   },
   "snow": {
-    "policy_version": "sentinel2_scl_native_snow_v1_draft",
+    "policy_version": "sentinel2_scl_native_snow_v2_draft",
     "stac_url": "https://planetarycomputer.microsoft.com/api/stac/v1",
     "collection": "sentinel-2-l2a",
     "product_band": 1,
@@ -1094,16 +1094,17 @@
       5,
       11
     ],
-    "minimum_cell_reference_coverage": 0.5,
+    "minimum_cell_reference_coverage": 0.9,
     "snow_fraction_threshold": 0.5,
     "minimum_pairs_per_scene": 30,
     "minimum_pairs_per_delivery": 30,
     "temporal_match": "same_UTC_day",
     "method_status": "draft",
-    "product_mapping_source": "Delivered QGIS style labels 0=no snow, 1=snow"
+    "product_mapping_source": "Delivered QGIS style labels 0=no snow, 1=snow",
+    "temporal_tolerance_seconds": 7200
   },
   "aeronet": {
-    "policy_version": "aeronet_station_day_v1_draft",
+    "policy_version": "aeronet_station_day_v2_draft",
     "download_levels": [
       20,
       15
@@ -1117,10 +1118,13 @@
     "minimum_station_days_per_delivery": 1,
     "relative_rmse_normalization": "mean_reference_in_data_units",
     "spatial_match": "containing_native_pixel",
-    "method_status": "draft"
+    "method_status": "draft",
+    "temporal_tolerance_seconds": 1800,
+    "neighborhood_radius_pixels": 1,
+    "minimum_neighborhood_valid_fraction": 0.75
   },
   "solar": {
-    "method_version": "era5-land-hourly-v2",
+    "method_version": "cams-bni-hourly-v1",
     "product_quantity": "direct_normal",
     "product_unit": "Wh/m2",
     "bounds": [
@@ -1130,7 +1134,7 @@
       47.2
     ],
     "minimum_coverage_fraction": 0.0,
-    "minimum_pairs": 1,
+    "minimum_pairs": 3,
     "excluded_utc_hours": [
       23
     ],
@@ -1140,6 +1144,12 @@
       "script": "input_availability/validation_data/03/validate_hour.py",
       "sha256": "939cf753cc5a0e2625165d3c5ae5e95c75475cd878115e707b963c40720ce0a6",
       "status": "ported hourly comparison"
-    }
+    },
+    "sampling_grid_degrees": 1.0,
+    "minimum_reference_reliability": 0.9,
+    "minimum_toa_wh_m2": 100.0,
+    "minimum_reference_bni_wh_m2": 50.0,
+    "minimum_direct_transmission": 0.5,
+    "allow_incompatible_ssrd_crosscheck": false
   }
 }

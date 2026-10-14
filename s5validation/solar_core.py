@@ -79,6 +79,18 @@ def grid_transform(latitude: np.ndarray, longitude: np.ndarray):
     )
 
 
+def deaccumulate(current,prior=None):
+    """Bound legacy float32 encoding noise; substantial negative energy still fails."""
+    energy=np.asarray(current,dtype=np.float64) if prior is None else np.asarray(current,dtype=np.float64)-prior
+    magnitude=np.abs(current) if prior is None else np.maximum(np.abs(current),np.abs(prior))
+    # Two local float32 spacings cover the observed ±2 J packing/regridding noise.
+    # The hard cap prevents tolerance growing with unreasonably large accumulations.
+    tolerance=np.minimum(5.,np.maximum(1.,2*np.spacing(np.asarray(magnitude,dtype=np.float32)).astype(float)))
+    if np.any(np.isfinite(energy)&(energy<-tolerance)):
+        raise ValueError('Negative de-accumulated SSRD beyond bounded encoding tolerance')
+    return np.maximum(energy,0)
+
+
 def product_on_reference_grid(path: Path, shape: tuple[int, int], transform):
     product = np.full(shape, np.nan, dtype=np.float64)
     coverage = np.zeros(shape, dtype=np.float32)

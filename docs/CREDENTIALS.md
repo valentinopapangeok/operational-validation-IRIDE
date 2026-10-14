@@ -89,8 +89,8 @@ Provider fields supported for consolidation:
 | Provider | Fields | Current use |
 |---|---|---|
 | Planetary Computer | `PLANETARY_COMPUTER_SUBSCRIPTION_KEY` (optional) | Landsat token requests only; public access works without it |
-| CDS | `CDS_URL`, `CDS_KEY` | ERA5-Land SSRD for product 03; dataset terms must be accepted in CDS |
-| ADS | `ADS_URL`, `ADS_KEY` | Reserved for future atmospheric providers |
+| CDS | `CDS_URL`, `CDS_KEY` | Legacy ERA5-Land cross-check; dataset terms must be accepted in CDS |
+| ADS | `ADS_URL`, `ADS_KEY` | Product 03 CAMS BNI; accept the solar-radiation time-series licence in ADS |
 | EUMETSAT | `EUMETSAT_CONSUMER_KEY`, `EUMETSAT_CONSUMER_SECRET` | Reserved for MSG/SEVIRI/product 06 |
 | Copernicus Data Space | `CDSE_USER`, `CDSE_PASSWORD` | Reserved for Sentinel-2/product 05 |
 | NIES | `NIES_USER`, `NIES_PASSWORD` | Reserved for GOSAT/products 07/08 |

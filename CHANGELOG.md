@@ -43,3 +43,9 @@
 ## Solar processing label
 
 - Replaced solar runtime DIAGNOSTIC labels with PROCESSED; removed diagnostic metric flag and runtime scientific caveats, preserving methodology documentation and zero accepted-sample accounting. Historical results are retained; shared retry and report handling support PROCESSED.
+
+## AOD source provenance correction
+
+- Accept aligned delivered source IDs and report EO, individual sources and CAMS fill separately. Keep source-unverified historical deliveries explicitly diagnostic.
+- Record station exclusions caused by missing source times or insufficient time-window observations; use the same source for neighborhood sensitivity.
+- Add offline coverage for model separation, model-only outcomes, source identity validation and source-time exclusions. Normal PyCharm `main.py` launch and credential files are unchanged.

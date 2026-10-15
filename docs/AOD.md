@@ -29,3 +29,9 @@ Confirm the product wavelength, temporal/spatial matching and QA policies, North
 [Delivered support](PRODUCT_SUPPORT.md) can confirm wavelength and provide native-grid QA and actual pixel times. With verified time, select AERONET observations within ±30 minutes. Without time, retain the existing daily mean as an explicitly exploratory diagnostic; do not invent an overpass from file-level input timestamps. A delivered/configured wavelength conflict blocks comparison.
 
 The containing-pixel comparison remains the baseline. A separate `spatial_neighborhood_metrics` evaluates a 3×3 native-pixel mean using finite, nonnegative, QA-valid values and at least 75% of the full expected neighborhood. Border/masked cells reduce coverage. Neighborhood station counts and standard deviation are recorded; this sensitivity does not replace the baseline or select whichever result passes. Missing wavelength, QA and time support each have independent verification flags. All Level 1.5 results remain preliminary.
+
+## Source-resolved comparisons
+
+With delivered source IDs, the baseline rRMSE describes matched **EO retrievals**; model fill has its own diagnostic metrics. This makes the change of metric scope explicit. Do not compare an EO-only score with the former combined product score without reporting the different source mix and station set. If a contractual KPI is intended to cover the complete fused product, the combined/model weighting requires an explicit decision; the 30% threshold is preserved.
+
+Station-days with insufficient observations inside ±30 minutes of the selected pixel time are excluded and logged. QA failures and unavailable source times are separate reasons for exclusion. Coverage loss must accompany score changes. `paired_station_days.csv` records source IDs, names and EO/model category alongside observation times and QA-filtered pairs. Source-specific and model-only results remain diagnostic, with no accepted campaign samples.

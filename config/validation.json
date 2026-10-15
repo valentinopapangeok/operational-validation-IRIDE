@@ -1104,7 +1104,7 @@
     "temporal_tolerance_seconds": 7200
   },
   "aeronet": {
-    "policy_version": "aeronet_station_day_v2_draft",
+    "policy_version": "aeronet_source_station_day_v3_draft",
     "download_levels": [
       20,
       15

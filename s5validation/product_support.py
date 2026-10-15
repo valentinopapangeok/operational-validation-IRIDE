@@ -14,7 +14,7 @@ def read_support(product):
     support={'schema_version':1};hashes={}
     if sidecar.exists():
         raw=json.loads(sidecar.read_text(encoding='utf-8'))
-        allowed={'schema_version','wavelength_nm','observation_time_utc','observation_time_raster','quality_mask_raster'}
+        allowed={'schema_version','wavelength_nm','observation_time_utc','observation_time_raster','quality_mask_raster','source_id_raster'}
         if raw.get('schema_version')!=1 or set(raw)-allowed:raise ValueError('Unsupported delivered validation sidecar')
         support.update(raw);hashes[sidecar.name]=digest(sidecar)
     tag=tags.get('AOD_OUTPUT_WAVELENGTH_NM')
@@ -29,7 +29,7 @@ def read_support(product):
         parse_time(support['observation_time_utc'])
     if support.get('observation_time_utc') and support.get('observation_time_raster'):
         raise ValueError('Use uniform or per-pixel observation time, not both')
-    for key in ('observation_time_raster','quality_mask_raster'):
+    for key in ('observation_time_raster','quality_mask_raster','source_id_raster'):
         if support.get(key):
             path=product.parent/support[key]
             if Path(support[key]).name!=support[key] or path.resolve().parent!=product.parent.resolve():

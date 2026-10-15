@@ -75,8 +75,12 @@ class AODAdapter:
         support,support_hashes=read_support(delivery.uri)
         if support.get('wavelength_nm') is not None and support['wavelength_nm']!=policy['wavelength_nm']:
             return Outcome('PENDING_CONFIGURATION','Delivered wavelength differs from configured AERONET wavelength','CONFIGURATION_REQUIRED')
-        matched_times=None;qa=None
+        matched_times=None;qa=None;source_grid=None
         with rasterio.open(delivery.uri) as ds:
+            if support.get('source_id_raster'):
+                source_grid,source_scale,source_offset=read_aligned(ds,Path(delivery.uri).parent/support['source_id_raster'])
+                if source_scale!=1 or source_offset!=0 or np.any(~np.isin(source_grid.compressed(),[1,2,3,4])):
+                    raise ValueError('AOD source IDs must be unscaled MODIS=1, GCOM-C=2, Sentinel-3=3, CAMS model=4')
             if support.get('quality_mask_raster'):
                 qa,scale,offset=read_aligned(ds,Path(delivery.uri).parent/support['quality_mask_raster'])
                 if scale!=1 or offset!=0 or np.any(~np.isin(qa.compressed(),[0,1])):raise ValueError('Product QA must be an unscaled 0/1 valid-observation mask')
@@ -106,6 +110,12 @@ class AODAdapter:
         previous=cached_outcome(folder)
         if previous:return previous
         pairs=[];rejections=[]
+        if matched_times is not None:
+            retained={r['station'] for r in references}
+            for reference in station_days(record,policy,day,aoi):
+                if reference['station'] not in retained:
+                    rejections.append({'station':reference['station'],'reason':'insufficient AERONET observations in source-time window or source time unavailable',
+                                       'matched_product_time_utc':matched_times.get(reference['station'])})
         with rasterio.open(delivery.uri) as ds:
             if ds.crs is None or ds.count<policy['product_band']:raise ValueError('Missing AOD georeferencing or band')
             transform=Transformer.from_crs('EPSG:4326',ds.crs,always_xy=True)
@@ -122,16 +132,26 @@ class AODAdapter:
                 predicted=float(value[0,0])*ds.scales[band-1]+ds.offsets[band-1]
                 if not np.isfinite(predicted) or predicted<0:
                     rejections.append({'station':reference['station'],'reason':'invalid product AOD'});continue
+                source_id=None
+                if source_grid is not None:
+                    if np.ma.getmaskarray(source_grid)[row,column]:
+                        rejections.append({'station':reference['station'],'reason':'unknown product source'});continue
+                    source_id=int(source_grid[row,column])
+                source_names={1:'MODIS',2:'GCOM-C',3:'Sentinel-3',4:'CAMS model'}
                 radius=policy.get('neighborhood_radius_pixels',1)
                 if not isinstance(radius,int) or not 0<=radius<=5:raise ValueError('AOD neighborhood radius must be 0–5 native pixels')
                 left=max(0,column-radius);top=max(0,row-radius);right=min(ds.width,column+radius+1);bottom=min(ds.height,row+radius+1)
                 values=ds.read(band,window=rasterio.windows.Window(left,top,right-left,bottom-top),masked=True)
                 physical=values.data*ds.scales[band-1]+ds.offsets[band-1]
                 valid=~np.ma.getmaskarray(values)&np.isfinite(physical)&(physical>=0)
+                if source_grid is not None:
+                    valid&=~np.ma.getmaskarray(source_grid)[top:bottom,left:right]&(source_grid.data[top:bottom,left:right]==source_id)
                 if qa is not None:valid&=~np.ma.getmaskarray(qa)[top:bottom,left:right]&(qa.data[top:bottom,left:right]==1)
                 count=int(valid.sum());expected=(2*radius+1)**2;coverage=count/expected
                 enough=count>0 and coverage>=policy.get('minimum_neighborhood_valid_fraction',.75)
                 pairs.append(dict(reference,predicted=predicted,row=int(row),column=int(column),
+                    source_id=source_id,source=source_names.get(source_id,"unverified"),
+                    source_type="model" if source_id==4 else "EO" if source_id else "unverified",
                     difference=predicted-reference['reference'],sample_key=reference['station']+':'+day,
                     neighborhood_mean=float(physical[valid].mean()) if enough else None,
                     neighborhood_std=float(physical[valid].std()) if enough else None,
@@ -146,24 +166,39 @@ class AODAdapter:
                 'Sub-AOI boundaries, KPI aggregation and positional tolerance are unresolved',
                 'Product wavelength is provisional' if support.get('wavelength_nm')!=policy['wavelength_nm'] else 'Full scientific QA policy requires approval',
                 'Level 1.5 is cloud-screened, not quality-assured Level 2.0']}
+        all_pairs=pairs
+        model_pairs=[p for p in all_pairs if p['source_type']=='model']
+        pairs=[p for p in all_pairs if p['source_type']!='model']
+        def group_metrics(group):
+            if not group:return {'n':0}
+            mean=abs(sum(p['reference'] for p in group)/len(group))
+            return continuous([p['predicted'] for p in group],[p['reference'] for p in group],mean or None)
+        source_metrics={name:group_metrics([p for p in all_pairs if p['source']==name]) for name in sorted({p['source'] for p in all_pairs})}
+        provenance['primary_metric_scope']='EO retrievals only; legacy source-unverified deliveries remain diagnostic' if source_grid is not None else 'Source-unverified exploratory product pairs'
+        provenance['model_fill_metrics']=group_metrics(model_pairs)
+        provenance['source_metrics']=source_metrics
         if len(pairs)<policy['minimum_station_days_per_delivery']:
-            return persist_outcome(folder,Outcome('REJECTED_QA','AERONET exists, but spectral/observation-count/spatial/product QA gives too few station-days','AVAILABLE',provenance=provenance))
+            summary={'n':len(pairs),'diagnostic_only':True,'model_station_days':len(model_pairs),
+                     'model_fill_metrics':group_metrics(model_pairs),'source_metrics':source_metrics}
+            status='DIAGNOSTIC' if not pairs and model_pairs else 'REJECTED_QA'
+            reason='Only model-filled station-days matched; no EO metric' if status=='DIAGNOSTIC' else 'AERONET exists, but spectral/observation-count/spatial/product QA gives too few station-days'
+            return persist_outcome(folder,Outcome(status,reason,'AVAILABLE',metrics=summary,provenance=provenance))
         predicted=[p['predicted'] for p in pairs];reference=[p['reference'] for p in pairs]
         denominator=abs(sum(reference)/len(reference));metrics=continuous(predicted,reference,denominator or None)
         metrics.update(unit='dimensionless_AOD',wavelength_nm=policy['wavelength_nm'],relative_rmse_denominator=denominator,
             relative_rmse_normalization='absolute mean paired station-day reference AOD',diagnostic_only=True,
-            station_days=len(pairs),level_15_station_days=sum(p['level']==1.5 for p in pairs),level_20_station_days=sum(p['level']==2 for p in pairs))
+            station_days=len(pairs),model_station_days=len(model_pairs),model_fill_metrics=group_metrics(model_pairs),source_metrics=source_metrics,source_identity_verified=source_grid is not None,level_15_station_days=sum(p['level']==1.5 for p in pairs),level_20_station_days=sum(p['level']==2 for p in pairs))
         neighborhood=[p for p in pairs if p['neighborhood_mean'] is not None]
         metrics.update(temporal_matching_verified=matched_times is not None,product_qa_verified=qa is not None,
                        wavelength_verified=support.get('wavelength_nm')==policy['wavelength_nm'],
                        spatial_neighborhood_metrics=continuous([p['neighborhood_mean'] for p in neighborhood],
                             [p['reference'] for p in neighborhood],abs(sum(p['reference'] for p in neighborhood)/len(neighborhood)) or None) if neighborhood else None,
-                       spatial_neighborhood_definition=f'{2*policy.get("neighborhood_radius_pixels",1)+1} by {2*policy.get("neighborhood_radius_pixels",1)+1} native pixels; supplementary sensitivity, not replacement KPI')
+                       spatial_neighborhood_definition=f'{2*policy.get("neighborhood_radius_pixels",1)+1} by {2*policy.get("neighborhood_radius_pixels",1)+1} native pixels, same source when documented; supplementary sensitivity, not replacement KPI')
         csv_path=folder/'paired_station_days.csv'
-        fields=['sample_key','station','day','longitude','latitude','row','column','predicted','reference','difference','level','observation_count',
+        fields=['source_id','source','source_type','sample_key','station','day','longitude','latitude','row','column','predicted','reference','difference','level','observation_count',
                 'matching','matched_product_time_utc','neighborhood_mean','neighborhood_std','neighborhood_valid_fraction','neighborhood_valid_cells']
         with csv_path.open('w',encoding='utf-8',newline='') as f:
-            writer=csv.DictWriter(f,fieldnames=fields,extrasaction='ignore');writer.writeheader();writer.writerows(pairs)
+            writer=csv.DictWriter(f,fieldnames=fields,extrasaction='ignore');writer.writeheader();writer.writerows(all_pairs)
         provenance['artifacts'].append(str(csv_path.resolve()))
         metrics_path=folder/'metrics.json';save_json(metrics_path,metrics);provenance['artifacts'].append(str(metrics_path.resolve()))
         data={k:np.array([p[k] for p in pairs]) for k in ('predicted','reference','longitude','latitude')}

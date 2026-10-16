@@ -118,6 +118,8 @@ def generate(registry, config, workdir, product=None):
             from .thermal_plots import make_trend
             path = make_trend(observations,workdir/'report',p)
             evidence += '<section><h2>'+esc(p)+' · metrics over time</h2><img style="max-width:100%;width:700px" src="'+esc(quote(path.name))+'" alt="Preliminary error metrics over time"></section>'
+    from .aod_reporting import comparison_html
+    evidence += comparison_html(rows)
     campaign = config['campaign']
     blockers = [f'Campaign: {k}' for k,v in campaign.items() if v is None]
     blockers += ['Thermal rRMSE uses the paired reference mean in Celsius. Remaining decisions include normalization for other products, KPI aggregation, spatial tolerance, reference QA and collocation rules.']

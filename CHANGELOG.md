@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-10-16 — AOD validation reporting
+
+- Display containing-pixel and supplementary 3×3 AOD metrics on identical station-days, with coverage exclusions and pair-pooled metrics.
+- Preserve the primary method, acceptance status, product files and production chain.
+
+
 ## Validation method corrections
 
 - Default solar reference is now equivalent hourly CAMS all-sky BNI, using existing ADS credentials, exact-AOI fixed points, explicit screening and all-condition audit metrics; incompatible SSRD comparisons are blocked by default.

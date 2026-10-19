@@ -10,12 +10,29 @@
       "South"
     ],
     "aoi_file": "aoi/italy_land.geojson",
-    "sub_aoi_file": null,
+    "sub_aoi_file": "aoi/italy_land_subareas.geojson",
     "kpi_aggregation": null,
     "duration_days": 90,
     "calendar_duration_days": 92,
     "first_run_date": "2026-10-08",
-    "duration_note": "User selected the calendar October\u2013December trimester (92 days); OSVP sampling language refers to 90 days."
+    "duration_note": "User selected the calendar October\u2013December trimester (92 days); OSVP sampling language refers to 90 days.",
+    "marine_sub_aoi_file": "aoi/italy_marine_subareas.geojson",
+    "sub_aoi_definition": {
+      "method": "fixed_latitude_bands_clipped_to_existing_AOI",
+      "south": "latitude <41.5N",
+      "center": "41.5N <= latitude <44N",
+      "north": "latitude >=44N",
+      "boundary_assignment": "northward half-open intervals",
+      "decided_by": "user authorization to define three parts; latitude cuts selected for reproducibility",
+      "decision_date": "2026-10-19"
+    },
+    "positional_accuracy_policy": {
+      "distance_operator": "<",
+      "tolerance_basis": "declared_product_spatial_resolution",
+      "applies_to": "all products",
+      "measurement_status": "declared_requirement; not a measured result",
+      "decision_date": "2026-10-19"
+    }
   },
   "delivery": {
     "mode": "manifest",
@@ -46,7 +63,9 @@
       "positional_target": {
         "operator": ">=",
         "percent": 90,
-        "tolerance_m": null
+        "tolerance_m": null,
+        "tolerance_basis": "declared_product_spatial_resolution",
+        "distance_operator": "<"
       },
       "relative_rmse_denominator": null,
       "rain_threshold": null,
@@ -138,7 +157,9 @@
       "positional_target": {
         "operator": ">",
         "percent": 80,
-        "tolerance_m": null
+        "tolerance_m": null,
+        "tolerance_basis": "declared_product_spatial_resolution",
+        "distance_operator": "<"
       },
       "relative_rmse_denominator": null,
       "rain_threshold": null,
@@ -230,7 +251,9 @@
       "positional_target": {
         "operator": ">=",
         "percent": 90,
-        "tolerance_m": null
+        "tolerance_m": null,
+        "tolerance_basis": "declared_product_spatial_resolution",
+        "distance_operator": "<"
       },
       "relative_rmse_denominator": null,
       "rain_threshold": null,
@@ -320,7 +343,9 @@
       "positional_target": {
         "operator": ">=",
         "percent": 90,
-        "tolerance_m": null
+        "tolerance_m": null,
+        "tolerance_basis": "declared_product_spatial_resolution",
+        "distance_operator": "<"
       },
       "relative_rmse_denominator": null,
       "rain_threshold": null,
@@ -415,7 +440,9 @@
       "positional_target": {
         "operator": ">",
         "percent": 80,
-        "tolerance_m": null
+        "tolerance_m": null,
+        "tolerance_basis": "declared_product_spatial_resolution",
+        "distance_operator": "<"
       },
       "relative_rmse_denominator": null,
       "rain_threshold": null,
@@ -504,7 +531,9 @@
       "positional_target": {
         "operator": ">=",
         "percent": 90,
-        "tolerance_m": null
+        "tolerance_m": null,
+        "tolerance_basis": "declared_product_spatial_resolution",
+        "distance_operator": "<"
       },
       "relative_rmse_denominator": null,
       "rain_threshold": null,
@@ -593,7 +622,9 @@
       "positional_target": {
         "operator": ">",
         "percent": 80,
-        "tolerance_m": null
+        "tolerance_m": null,
+        "tolerance_basis": "declared_product_spatial_resolution",
+        "distance_operator": "<"
       },
       "relative_rmse_denominator": null,
       "rain_threshold": null,
@@ -683,7 +714,9 @@
       "positional_target": {
         "operator": ">",
         "percent": 80,
-        "tolerance_m": null
+        "tolerance_m": null,
+        "tolerance_basis": "declared_product_spatial_resolution",
+        "distance_operator": "<"
       },
       "relative_rmse_denominator": null,
       "rain_threshold": null,
@@ -773,7 +806,9 @@
       "positional_target": {
         "operator": ">",
         "percent": 80,
-        "tolerance_m": null
+        "tolerance_m": null,
+        "tolerance_basis": "declared_product_spatial_resolution",
+        "distance_operator": "<"
       },
       "relative_rmse_denominator": null,
       "rain_threshold": null,
@@ -863,7 +898,9 @@
       "positional_target": {
         "operator": ">=",
         "percent": 90,
-        "tolerance_m": null
+        "tolerance_m": null,
+        "tolerance_basis": "declared_product_spatial_resolution",
+        "distance_operator": "<"
       },
       "relative_rmse_denominator": null,
       "rain_threshold": null,
@@ -955,7 +992,9 @@
       "positional_target": {
         "operator": ">",
         "percent": 80,
-        "tolerance_m": null
+        "tolerance_m": null,
+        "tolerance_basis": "declared_product_spatial_resolution",
+        "distance_operator": "<"
       },
       "relative_rmse_denominator": null,
       "rain_threshold": null,
@@ -1074,7 +1113,7 @@
     "relative_rmse_denominator": null,
     "marine_applicability": "coastal_valid_water_pixels_only; SST equivalence not yet established",
     "s5_observation_time_policy": "daily metadata do not provide per-pixel observation times; same-day comparisons are diagnostic",
-    "sub_aoi_status": "awaiting confirmed geometries",
+    "sub_aoi_status": "defined latitude-band land and marine geometries; assignment in adapters tracked separately",
     "relative_rmse_normalization": "mean_reference_in_data_units",
     "relative_rmse_normalization_authority": "User instruction: normalize in the unit used by the data; paired reference mean in Celsius."
   },
@@ -1121,7 +1160,35 @@
     "method_status": "draft",
     "temporal_tolerance_seconds": 1800,
     "neighborhood_radius_pixels": 1,
-    "minimum_neighborhood_valid_fraction": 0.75
+    "minimum_neighborhood_valid_fraction": 0.75,
+    "approved_working_method": {
+      "method_id": "iride_aod_circle_27p5_daily_v1",
+      "approval": "user_approved_2026-10-19",
+      "radius_km": 27.5,
+      "spatial_statistic": "arithmetic_mean",
+      "minimum_valid_circle_fraction": 0.2,
+      "spectral_method": "four_positive_channels_quadratic_log_log_550nm",
+      "reference_levels_preference": [
+        20,
+        15
+      ],
+      "temporal_match": "same_UTC_day_arithmetic_mean",
+      "minimum_observations_per_station_day": 2,
+      "individual_station_day_threshold_pct": 30,
+      "daily_reporting": [
+        "all_eligible_pooled_rrmse",
+        "passing_only_pooled_rrmse",
+        "passing_and_observed_station_counts",
+        "counts_by_sub_aoi",
+        "unique_sampled_AOI_pixel_percentage"
+      ],
+      "monthly_objective": {
+        "passing_station_days": 5,
+        "distribution": "cover_all_three_sub_AOIs_when_available"
+      },
+      "acceptance_authority": "project_user_decision; NASA is methodology provenance, not a certification gate",
+      "operational_integration_status": "evaluated_in_local_trial; current adapter remains containing_pixel_until_integration"
+    }
   },
   "solar": {
     "method_version": "cams-bni-hourly-v1",

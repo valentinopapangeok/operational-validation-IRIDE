@@ -7,6 +7,14 @@
     "aoi/marine.geojson": {
       "sha256": "5c1cc5defa895d0e84afa854a6b4806a38d93b85a38f06f02bf498217e72e85a",
       "bytes": 10155328
+    },
+    "aoi/italy_land_subareas.geojson": {
+      "sha256": "065c7df14255ef335c7fa67e5e2210d3cf3c7eecca9078b07697d4747fbf0eec",
+      "bytes": 1194874
+    },
+    "aoi/italy_marine_subareas.geojson": {
+      "sha256": "529c765a343f2f42960794e100d31e73c07ae6841462056cee15d211456be24f",
+      "bytes": 9066894
     }
   }
 }

@@ -20,6 +20,8 @@ def initialize(config,base,workdir):
     paths={campaign.get('aoi_file')}
     if campaign.get('sub_aoi_file'):
         paths.add(campaign['sub_aoi_file'])
+    if campaign.get('marine_sub_aoi_file'):
+        paths.add(campaign['marine_sub_aoi_file'])
     if config.get('landsat'):
         paths.update(config['landsat'].get(key) for key in ('land_aoi_file','marine_aoi_file'))
     for name in paths:

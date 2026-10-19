@@ -1,5 +1,7 @@
 # S5-02-09 AOD validation
 
+Current user-approved project decisions are recorded in [Campaign decisions](CAMPAIGN_DECISIONS.md). They supersede earlier unresolved-method notes for the geographic split, positional tolerance definition and approved AOD trial. Operational integration status is stated explicitly there.
+
 `main.py` searches all campaign production dates, then downloads public [AERONET V3 all-point observations](https://aeronet.gsfc.nasa.gov/print_web_data_help_v3.html) for those UTC dates and the Italy AOI bounding box. Returned stations are additionally filtered by the exact bundled land polygon, so nearby foreign stations are not counted. No AERONET credential is needed.
 
 ## Provisional settings

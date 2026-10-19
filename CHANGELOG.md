@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026-10-19 — Recorded campaign decisions
+
+- Added versioned North/Center/South land and marine AOI partitions at 41.5°N and 44°N, preserving the original AOIs.
+- Recorded user approval of the evaluated 27.5 km AOD adaptation; NASA is provenance rather than a certification gate.
+- Defined positional tolerance as strictly less than declared product resolution, without asserting measured positional compliance.
+- Kept the current operational AOD adapter separate from the approved trial pending integration.
+
+
 ## 2026-10-16 — AOD validation reporting
 
 - Display containing-pixel and supplementary 3×3 AOD metrics on identical station-days, with coverage exclusions and pair-pooled metrics.

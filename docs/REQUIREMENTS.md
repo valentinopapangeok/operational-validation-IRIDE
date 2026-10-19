@@ -1,5 +1,7 @@
 # Validation metrics and reference requirements
 
+Current user-approved project decisions are recorded in [Campaign decisions](CAMPAIGN_DECISIONS.md). They supersede earlier unresolved-method notes for the geographic split, positional tolerance definition and approved AOD trial. Operational integration status is stated explicitly there.
+
 Source: user-supplied validation plan `OSVP_Contrib.Partners_v2_S5-02_revised.xlsx`, sheet `Batch1`, S5-02 rows 11–21. The application preserves the exact method, target, sampling, spatial coverage and clarification text, together with merged-cell source addresses and the workbook SHA-256 in `config/validation_plan_source.json`. The source workbook is read without modification. The application does not assume the proposed sample volumes are acceptance criteria.
 
 ## Campaign decisions before production validation

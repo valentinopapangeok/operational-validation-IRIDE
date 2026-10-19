@@ -68,6 +68,7 @@ class BootstrapTests(unittest.TestCase):
     def fixture(self,root):
         cfg=copy.deepcopy(json.loads((BASE/'config/validation.json').read_text(encoding='utf-8')));geometry=root/'aoi.geojson'
         geometry.write_text(json.dumps({'type':'Polygon','coordinates':[[[10,35],[20,35],[20,50],[10,50],[10,35]]]}), encoding='utf-8')
+        cfg['campaign']['sub_aoi_file']='aoi.geojson';cfg['campaign']['marine_sub_aoi_file']='aoi.geojson'
         cfg['campaign']['aoi_file']='aoi.geojson';cfg['landsat']['land_aoi_file']='aoi.geojson';cfg['landsat']['marine_aoi_file']='aoi.geojson'
         return cfg
 

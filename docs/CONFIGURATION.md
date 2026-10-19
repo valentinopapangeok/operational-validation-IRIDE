@@ -44,7 +44,7 @@ This is a format example, not a measurement shipped with the repo. Keep one curr
 
 ## Scientific policy
 
-Each product includes its `kind`, `adapter`, units, reference, sample requirements, thematic/positional targets, required metrics and configuration placeholders. Products 01/02/10/11 use `landsat_l2`, 03 uses `era5_land_ssrd`, 05 uses `sentinel2_scl` and 09 uses `aeronet_station_day`; adapters for 04/06/07/08 remain null.
+Each product includes its `kind`, `adapter`, units, reference, sample requirements, thematic/positional targets, required metrics and configuration placeholders. Products 01/02/10/11 use `landsat_l2`, 03 uses `era5_land_ssrd`, 05 uses `sentinel2_scl` and 09 uses `aeronet_circular` (the legacy `aeronet_station_day` remains available); adapters for 04/06/07/08 remain null.
 
 Landsat policy is under `landsat`: catalogue/provider, platforms, required assets, exact AOIs, band number, QA flags, uncertainty/cloud-distance limits, minimum cell coverage, pair threshold and method version. QA is currently draft. Thermal rRMSE uses `relative_rmse_normalization: mean_reference_in_data_units`, equivalent to `100 * RMSE / abs(mean(paired reference °C))`. A zero denominator produces null; no unit conversion or near-zero epsilon is silently inserted. Fixed positive denominators are supported via the per-product `relative_rmse_denominator`, but do not configure both modes. Other products need their own normalization decisions.
 

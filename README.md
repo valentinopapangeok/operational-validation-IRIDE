@@ -2,11 +2,11 @@
 
 Manually launched scientific validation for IRIDE S5-02 products. The pipeline downloads production deliveries and reference data, applies quality filters, collocates observations, calculates metrics, and keeps a local SQLite registry with reproducible evidence and HTML reports.
 
-**Implemented:** production downloads for all eleven products; Landsat 8/9 thermal reference downloads and preliminary comparisons for **01 LST, 02 SST, 10 downscaled LST and 11 downscaled SST**. **05 Snow Cover** now has Sentinel-2 SCL download/QA/native-cell comparisons; **09 AOD** has public AERONET download and provisional 550 nm station-day comparisons. Products **04, 06, 07, 08** still need scientific adapters.
+**Implemented:** production downloads for all eleven products; Landsat 8/9 thermal reference downloads and preliminary comparisons for **01 LST, 02 SST, 10 downscaled LST and 11 downscaled SST**. **05 Snow Cover** now has Sentinel-2 SCL download/QA/native-cell comparisons; **09 AOD** has public AERONET download and the approved 27.5 km circular daily comparison at 550 nm. Products **04, 06, 07, 08** still need scientific adapters.
 
 **03 Solar Radiation** also supports equivalent hourly DNI/CAMS BNI cross-checks and ADS downloads; see [Solar methodology](docs/SOLAR_CAMS.md).
 
-Thermal, snow and AOD results are currently **DIAGNOSTIC**; solar comparisons use **PROCESSED**. Neither status counts as accepted campaign acquisitions or establishes overall compliance. Solar comparisons retain the methodological limitations described in docs/SOLAR_CAMS.md. The shipped campaign is **1 October–31 December 2026**. Thermal rRMSE uses the absolute mean paired reference temperature **in Celsius**; this convention is explicit and scale dependent.
+Thermal and snow results are currently **DIAGNOSTIC**; solar and operative circular AOD comparisons use **PROCESSED**. Neither status counts as accepted campaign acquisitions or establishes overall compliance. Solar comparisons retain the methodological limitations described in docs/SOLAR_CAMS.md. The shipped campaign is **1 October–31 December 2026**. Thermal rRMSE uses the absolute mean paired reference temperature **in Celsius**; this convention is explicit and scale dependent.
 
 ## Quick start
 
@@ -40,7 +40,7 @@ python main.py
 iride-validate --run
 ```
 
-Products 04, 06, 07 and 08 remain `PENDING_CONFIGURATION` until their scientific adapters are implemented. Solar, snow and AOD run automatically; AOD uses a provisional 550 nm setting. An operationally successful run does not imply accepted validation samples.
+Products 04, 06, 07 and 08 remain `PENDING_CONFIGURATION` until their scientific adapters are implemented. Solar, snow and AOD run automatically; AOD uses the approved 27.5 km circular method at 550 nm. An operationally successful run does not imply accepted validation samples.
 
 ## Run against production
 

@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-10-19 — Operative AOD circle method
+
+- Promote the approved 27.5 km circular AOD comparison to the main.py default for product 09.
+- Add four-channel spectral conversion, daily all/passing station metrics, exact sub-AOI counts and overlap-deduplicated sampled-pixel coverage.
+- Preserve original product/reference files and legacy evidence; record the user-declared October 20 production transition separately.
+
+
 ## 2026-10-19 — Recorded campaign decisions
 
 - Added versioned North/Center/South land and marine AOI partitions at 41.5°N and 44°N, preserving the original AOIs.

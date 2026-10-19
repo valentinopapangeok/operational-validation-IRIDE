@@ -4,6 +4,7 @@ def register(config,base):
     from .operational import REFERENCE_REFRESHERS
     from .snow import SnowAdapter
     from .aod import AODAdapter
+    from .aod_circular import CircularAODAdapter
     from .references.sentinel2 import refresh_sentinel2
     from .references.aeronet import refresh_aeronet
     from .solar import SolarAdapter
@@ -18,6 +19,9 @@ def register(config,base):
     if 'aeronet_station_day' in selected:
         ADAPTERS['aeronet_station_day']=AODAdapter(config,base)
         REFERENCE_REFRESHERS['aeronet_station_day']=refresh_aeronet
+    if 'aeronet_circular' in selected:
+        ADAPTERS['aeronet_circular']=CircularAODAdapter(config,base)
+        REFERENCE_REFRESHERS['aeronet_circular']=refresh_aeronet
     if 'era5_land_ssrd' in selected:
         ADAPTERS['era5_land_ssrd']=SolarAdapter(config,base)
         REFERENCE_REFRESHERS['era5_land_ssrd']=refresh_era5_land

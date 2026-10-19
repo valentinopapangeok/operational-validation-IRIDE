@@ -792,7 +792,7 @@
     "S5-02-09": {
       "name": "AOD",
       "kind": "continuous",
-      "adapter": "aeronet_station_day",
+      "adapter": "aeronet_circular",
       "reference": "AERONET",
       "sample_unit": "station-day",
       "sample_target": 15,
@@ -869,7 +869,7 @@
         }
       },
       "evaluation_scope": null,
-      "kpi_aggregation": null,
+      "kpi_aggregation": "daily all-eligible pooled rRMSE plus passing-only summary and monthly geographically distributed passing-station-day count",
       "required_metrics": [
         "relative_rmse_pct",
         "positional_accuracy_pct"
@@ -1143,21 +1143,21 @@
     "temporal_tolerance_seconds": 7200
   },
   "aeronet": {
-    "policy_version": "aeronet_source_station_day_v3_draft",
+    "policy_version": "iride_aod_circle_27p5_daily_v1",
     "download_levels": [
       20,
       15
     ],
     "wavelength_nm": 550,
-    "wavelength_status": "provisional_user_estimate",
-    "spectral_method": "direct_or_log_log_bracketing_interpolation_no_extrapolation",
+    "wavelength_status": "user_approved_550nm",
+    "spectral_method": "four_positive_channels_quadratic_log_log_550nm",
     "product_band": 1,
     "temporal_match": "same_UTC_day_arithmetic_mean",
-    "minimum_observations_per_station_day": 3,
+    "minimum_observations_per_station_day": 2,
     "minimum_station_days_per_delivery": 1,
     "relative_rmse_normalization": "mean_reference_in_data_units",
-    "spatial_match": "containing_native_pixel",
-    "method_status": "draft",
+    "spatial_match": "fixed_geodesic_circle_mean",
+    "method_status": "user_approved_operational",
     "temporal_tolerance_seconds": 1800,
     "neighborhood_radius_pixels": 1,
     "minimum_neighborhood_valid_fraction": 0.75,
@@ -1187,7 +1187,12 @@
         "distribution": "cover_all_three_sub_AOIs_when_available"
       },
       "acceptance_authority": "project_user_decision; NASA is methodology provenance, not a certification gate",
-      "operational_integration_status": "evaluated_in_local_trial; current adapter remains containing_pixel_until_integration"
+      "operational_integration_status": "operative_default"
+    },
+    "production_change_note": {
+      "expected_effective_date": "2026-10-20",
+      "authority": "User declaration on 2026-10-19",
+      "note": "Corrected production processing expected from this date; do not relabel older deliveries or infer deployment from acquisition date alone."
     }
   },
   "solar": {

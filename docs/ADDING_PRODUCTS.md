@@ -1,6 +1,6 @@
 # Adding a validation product
 
-The repository contains all eleven S5-02 requirement definitions. Products 04, 06, 07 and 08 need scientific adapters. Products 05 and 09 have draft diagnostic adapters. Start with one product end to end, using synthetic/offline fixtures before optional real-data integration. Product frequency, reference availability, proposed observation volume and scientific accuracy are separate concerns.
+The repository contains all eleven S5-02 requirement definitions. Products 04, 06, 07 and 08 need scientific adapters. Product 05 has a draft diagnostic adapter; product 09 has the user-approved operational circular adapter. Start with one product end to end, using synthetic/offline fixtures before optional real-data integration. Product frequency, reference availability, proposed observation volume and scientific accuracy are separate concerns.
 
 ## 1. Define the observable and method
 

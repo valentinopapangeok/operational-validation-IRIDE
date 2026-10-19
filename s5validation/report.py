@@ -104,7 +104,7 @@ def generate(registry, config, workdir, product=None):
         evidence += '</section>'
     current = {(row['product'],row['delivery_id']):row for row in rows}
     for p,cfg in config['products'].items():
-        if cfg.get('adapter') in ('sentinel2_scl','aeronet_station_day','era5_land_ssrd'):
+        if cfg.get('adapter') in ('sentinel2_scl','aeronet_station_day','aeronet_circular','era5_land_ssrd'):
             observations=[(row['acquired_at'],json.loads(row['metrics'])) for row in current.values() if row['product']==p and row['status'] in ('DIAGNOSTIC','PROCESSED')]
             if len(observations)>=2:
                 from .evidence import make_trend
@@ -118,8 +118,9 @@ def generate(registry, config, workdir, product=None):
             from .thermal_plots import make_trend
             path = make_trend(observations,workdir/'report',p)
             evidence += '<section><h2>'+esc(p)+' · metrics over time</h2><img style="max-width:100%;width:700px" src="'+esc(quote(path.name))+'" alt="Preliminary error metrics over time"></section>'
-    from .aod_reporting import comparison_html
+    from .aod_reporting import comparison_html,circular_comparison_html
     evidence += comparison_html(rows)
+    evidence += circular_comparison_html(rows)
     campaign = config['campaign']
     blockers = [f'Campaign: {k}' for k,v in campaign.items() if v is None]
     blockers += ['Thermal rRMSE uses the paired reference mean in Celsius. Remaining decisions include normalization for other products, KPI aggregation, spatial tolerance, reference QA and collocation rules.']
@@ -143,7 +144,11 @@ def status(registry,config,product=None):
     for p,cfg in config['products'].items():
         if product and p != product:
             continue
+        if cfg.get('adapter')=='aeronet_circular':
+            from .aod_reporting import circular_working_counts
+            for month,value in sorted(circular_working_counts(registry.rows(p)).items()):
+                lines.append(f"{p} {month}: {value['passing']} passing station-days; North/Center/South {dict(value['areas'])}; working monthly objective ≥5.")
         total,_,label = progress(registry,config,p)
-        lines.append(f'{p} {cfg["name"]}: {total}/{cfg["sample_target"]} {cfg["sample_unit"]} — {label}')
+        lines.append(f'{p} {cfg["name"]}: {total}/{cfg["sample_target"]} accepted registry {cfg["sample_unit"]} — {label}')
     lines.append('Delivery states: '+str(dict(Counter(r['status'] for r in registry.rows(product)))))
     return '\n'.join(lines)

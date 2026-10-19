@@ -102,3 +102,5 @@ validation/         ignored local manifest, cache, database, results and reports
 ```
 
 The original validation workbook is not distributed. `config/validation_plan_source.json` preserves its filename, SHA-256, exact requirement text and merged-cell addresses. Runtime folders are checked/created on every launch. Raw data, populated environment files and runtime outputs stay outside Git. Software licensing has not been assigned; repository access does not grant rights to redistribute underlying data.
+
+Reference inputs are retained and verified for reuse across runs. See [reference cache retention](docs/REFERENCE_CACHE.md) before moving or cleaning a cache.

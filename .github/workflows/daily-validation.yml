@@ -6,8 +6,8 @@ on:
   workflow_dispatch:
     inputs:
       manifest:
-        description: Repository-relative daily-inputs/YYYY-MM-DD/S5-02-NN/manifest.json
-        required: true
+        description: Repository-relative manifest path, or "all" to refresh every uploaded package
+        required: false
         type: string
 permissions:
   contents: read
@@ -27,7 +27,9 @@ jobs:
       - name: Select changed product packages
         id: changed
         run: |
-          if test -n "$SELECTED_MANIFEST"; then
+          if test "$SELECTED_MANIFEST" = all; then
+            git ls-files 'daily-inputs/**/manifest.json' > "$RUNNER_TEMP/changed_paths.txt"
+          elif test -n "$SELECTED_MANIFEST"; then
             printf '%s\n' "$SELECTED_MANIFEST" > "$RUNNER_TEMP/changed_paths.txt"
           elif git cat-file -e "${BEFORE_SHA}^{commit}" 2>/dev/null; then
             git diff --name-only --diff-filter=ACMR "$BEFORE_SHA" "$GITHUB_SHA" -- daily-inputs > "$RUNNER_TEMP/changed_paths.txt"
@@ -90,10 +92,20 @@ jobs:
         run: mkdir -p "$RUNNER_TEMP/pending-request-state"
       - name: Fetch references and validate changed packages
         run: |
+          ROOT="${MANIFEST%/manifest.json}"
+          SAFE_NAME="${ROOT//\//-}"
           python tools/run_pushed_inputs.py --changed-paths "$RUNNER_TEMP/changed_paths.txt" \
             --downloader-credentials-file "$RUNNER_TEMP/downloaders.env" \
             --request-state-dir "$RUNNER_TEMP/pending-request-state" \
-            --workdir "$RUNNER_TEMP/s5-pushed-validation"
+            --workdir "$RUNNER_TEMP/s5-pushed-validation" \
+            --public-summary "$RUNNER_TEMP/public-kpi/$SAFE_NAME.json"
+      - name: Retain aggregate KPI outcome
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: kpi-${{ strategy.job-index }}
+          path: ${{ runner.temp }}/public-kpi/*.json
+          if-no-files-found: ignore
       - name: Retain pending request IDs only
         if: always()
         uses: actions/cache/save@v4
@@ -108,3 +120,31 @@ jobs:
       - name: Remove provider credentials
         if: always()
         run: rm -f "$RUNNER_TEMP/downloaders.env"
+  publish:
+    needs: [select, validate]
+    if: always() && needs.select.result == 'success' && needs.validate.result != 'skipped'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      actions: read
+    concurrency:
+      group: s5-public-kpi-page
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          persist-credentials: true
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: kpi-*
+          path: ${{ runner.temp }}/kpi-results
+          merge-multiple: true
+      - name: Update public aggregate results
+        run: python tools/public_kpi_page.py docs/kpi-data.json "$RUNNER_TEMP/kpi-results"
+      - name: Commit result page data
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add docs/kpi-data.json
+          git diff --cached --quiet || { git commit -m 'Update public S5 KPI results'; git push origin HEAD:main; }

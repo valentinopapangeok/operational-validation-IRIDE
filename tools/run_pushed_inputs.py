@@ -157,6 +157,7 @@ def main():
     parser.add_argument('--downloader-credentials-file',type=Path)
     parser.add_argument('--request-state-dir',type=Path)
     parser.add_argument('--workdir',type=Path,help='Temporary job workdir, removed by the workflow')
+    parser.add_argument('--public-summary',type=Path,help='Write aggregate KPI outcomes without reference observations')
     args=parser.parse_args()
     repo=Path(__file__).resolve().parents[1]
     manifests=select_manifests(repo,args.changed_paths)
@@ -170,6 +171,9 @@ def main():
         with tempfile.TemporaryDirectory(prefix='s5-pushed-validation-') as temporary:
             result=validate_packages(repo,manifests,Path(temporary),args.downloader_credentials_file,args.request_state_dir)
     print(json.dumps(result,indent=2))
+    if args.public_summary:
+        from public_kpi_page import export_summary
+        export_summary(args.workdir, result, args.public_summary)
     return 2 if result.get('provider_errors') or any(d['status']=='ERROR' for d in result['deliveries']) else 0
 
 

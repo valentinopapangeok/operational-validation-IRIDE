@@ -11,31 +11,21 @@ on:
         type: string
 permissions:
   contents: read
-concurrency:
-  group: s5-product-validation
-  cancel-in-progress: false
 jobs:
-  validate:
+  select:
     runs-on: ubuntu-latest
-    timeout-minutes: 360
+    outputs:
+      manifests: ${{ steps.changed.outputs.manifests }}
     env:
       BEFORE_SHA: ${{ github.event.before }}
       SELECTED_MANIFEST: ${{ inputs.manifest }}
     steps:
       - uses: actions/checkout@v4
-        env:
-          GIT_LFS_SKIP_SMUDGE: '1'
         with:
           fetch-depth: 0
           lfs: false
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-          cache: pip
-          cache-dependency-path: pyproject.toml
-      - name: Install scientific dependencies
-        run: python -m pip install -e '.[scientific]'
       - name: Select changed product packages
+        id: changed
         run: |
           if test -n "$SELECTED_MANIFEST"; then
             printf '%s\n' "$SELECTED_MANIFEST" > "$RUNNER_TEMP/changed_paths.txt"
@@ -44,22 +34,40 @@ jobs:
           else
             git ls-files daily-inputs > "$RUNNER_TEMP/changed_paths.txt"
           fi
+          python tools/list_changed_manifests.py "$RUNNER_TEMP/changed_paths.txt" >> "$GITHUB_OUTPUT"
+  validate:
+    needs: select
+    if: needs.select.outputs.manifests != '[]'
+    strategy:
+      fail-fast: false
+      matrix:
+        manifest: ${{ fromJSON(needs.select.outputs.manifests) }}
+    concurrency:
+      group: s5-${{ matrix.manifest }}
+      cancel-in-progress: false
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    env:
+      MANIFEST: ${{ matrix.manifest }}
+    steps:
+      - uses: actions/checkout@v4
+        env:
+          GIT_LFS_SKIP_SMUDGE: '1'
+        with:
+          lfs: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+          cache-dependency-path: pyproject.toml
+      - name: Install scientific dependencies
+        run: python -m pip install -e '.[scientific]'
       - name: Fetch only selected product assets from Git LFS
         run: |
           git lfs version
-          INCLUDE=$(python - <<'PY'
-          import os
-          from pathlib import Path
-          paths=(Path(os.environ['RUNNER_TEMP'])/'changed_paths.txt').read_text().splitlines()
-          roots=set()
-          for raw in paths:
-              parts=Path(raw).parts
-              if len(parts)>=3 and parts[0]=='daily-inputs':
-                  roots.add('/'.join(parts[:3])+'/assets/*')
-          print(','.join(sorted(roots)))
-          PY
-          )
-          if test -n "$INCLUDE"; then git lfs pull --include "$INCLUDE" --exclude ""; fi
+          ROOT="${MANIFEST%/manifest.json}"
+          git lfs pull --include "$ROOT/assets/*" --exclude ""
+          printf '%s\n' "$MANIFEST" > "$RUNNER_TEMP/changed_paths.txt"
       - name: Install provider credentials for this run
         env:
           DOWNLOADER_ENV: ${{ secrets.S5_DOWNLOADER_ENV }}
@@ -75,8 +83,8 @@ jobs:
         uses: actions/cache/restore@v4
         with:
           path: ${{ runner.temp }}/pending-request-state
-          key: s5-request-state-${{ github.run_id }}
-          restore-keys: s5-request-state-
+          key: s5-request-${{ matrix.manifest }}-${{ github.run_id }}
+          restore-keys: s5-request-${{ matrix.manifest }}-
       - name: Initialize request metadata directory
         run: mkdir -p "$RUNNER_TEMP/pending-request-state"
       - name: Fetch references and validate changed packages
@@ -90,7 +98,7 @@ jobs:
         uses: actions/cache/save@v4
         with:
           path: ${{ runner.temp }}/pending-request-state
-          key: s5-request-state-${{ github.run_id }}
+          key: s5-request-${{ matrix.manifest }}-${{ github.run_id }}
       - name: Remove downloaded references and products from runner
         if: always()
         run: |

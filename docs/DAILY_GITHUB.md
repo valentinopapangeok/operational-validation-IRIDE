@@ -13,8 +13,8 @@ git status --short daily-inputs
 ```
 
 Git LFS tracks package assets. The push workflow runs when `daily-inputs/**`
-changes on `main`, finds every changed product/date pair, checks its hashes,
-downloads its references from the providers, and validates without contacting
+changes on `main`, finds every changed product/date pair, and starts one hosted
+job per pair. Each job checks hashes, downloads references, and validates without contacting
 the IRIDE production bucket. A manual workflow input accepts one manifest path
 for retry. Provider credentials belong in the GitHub Actions secret
 `S5_DOWNLOADER_ENV`, using the `downloaders.env` format documented in

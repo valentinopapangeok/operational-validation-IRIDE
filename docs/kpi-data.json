@@ -1,1 +1,462 @@
-{"schema_version":1,"updated_at":null,"method_note":"Processing success is not contractual acceptance.","deliveries":[]}
+{
+  "schema_version": 1,
+  "updated_at": "2026-11-02T17:54:54.048342+00:00",
+  "method_note": "Qualifying dates use product thematic thresholds and sampled reference support. Processing success is not contractual acceptance. Product 04 adjusted results are a theoretical uncertainty lower bound.",
+  "scope_note": "Counts cover uploaded product/date packages with hosted results, not all production dates.",
+  "deliveries": [
+    {
+      "product": "S5-02-06",
+      "date": "2026-10-31",
+      "processing_status": "DIAGNOSTIC",
+      "reference_status": "AVAILABLE",
+      "areas": {
+        "Whole AOI": [
+          {
+            "date": "2026-10-31",
+            "result": "FAIL",
+            "passing_hours": 0,
+            "evaluated_hours": 1
+          }
+        ],
+        "North": [
+          {
+            "date": "2026-10-31",
+            "result": "FAIL",
+            "passing_hours": 0,
+            "evaluated_hours": 1
+          }
+        ],
+        "Center": [
+          {
+            "date": "2026-10-31",
+            "result": "FAIL",
+            "passing_hours": 0,
+            "evaluated_hours": 1
+          }
+        ],
+        "South": [
+          {
+            "date": "2026-10-31",
+            "result": "FAIL",
+            "passing_hours": 0,
+            "evaluated_hours": 1
+          }
+        ]
+      },
+      "monthly": {
+        "target": 5,
+        "qualifying_count": 0,
+        "count_target_met": false,
+        "geographic_target_met": false,
+        "monthly_target_met": false
+      }
+    },
+    {
+      "product": "S5-02-04",
+      "date": "2026-10-31",
+      "processing_status": "DIAGNOSTIC",
+      "reference_status": "AVAILABLE",
+      "areas": {
+        "Whole AOI": [],
+        "North": [
+          {
+            "date": "2026-10-31",
+            "result": "UNEVALUATED",
+            "passing_hours": 0,
+            "evaluated_hours": 0
+          }
+        ],
+        "Center": [
+          {
+            "date": "2026-10-31",
+            "result": "FAIL",
+            "passing_hours": 0,
+            "evaluated_hours": 1
+          }
+        ],
+        "South": [
+          {
+            "date": "2026-10-31",
+            "result": "UNEVALUATED",
+            "passing_hours": 0,
+            "evaluated_hours": 0
+          }
+        ]
+      },
+      "monthly": {
+        "target": 5,
+        "qualifying_count": 0,
+        "count_target_met": false,
+        "geographic_target_met": false,
+        "monthly_target_met": false
+      }
+    },
+    {
+      "product": "S5-02-03",
+      "date": "2026-10-31",
+      "processing_status": "REJECTED_QA",
+      "reference_status": "UNKNOWN",
+      "areas": {
+        "Whole AOI": [
+          {
+            "date": "2026-10-31",
+            "result": "UNEVALUATED",
+            "passing_hours": 0,
+            "evaluated_hours": 0
+          }
+        ],
+        "North": [
+          {
+            "date": "2026-10-31",
+            "result": "UNEVALUATED",
+            "passing_hours": 0,
+            "evaluated_hours": 0
+          }
+        ],
+        "Center": [
+          {
+            "date": "2026-10-31",
+            "result": "UNEVALUATED",
+            "passing_hours": 0,
+            "evaluated_hours": 0
+          }
+        ],
+        "South": [
+          {
+            "date": "2026-10-31",
+            "result": "UNEVALUATED",
+            "passing_hours": 0,
+            "evaluated_hours": 0
+          }
+        ]
+      },
+      "monthly": {
+        "target": 5,
+        "qualifying_count": 0,
+        "count_target_met": false,
+        "geographic_target_met": false,
+        "monthly_target_met": false
+      }
+    },
+    {
+      "product": "S5-02-11",
+      "date": "2026-10-29",
+      "processing_status": "DIAGNOSTIC",
+      "reference_status": "AVAILABLE",
+      "areas": {
+        "Whole AOI": [
+          {
+            "date": "2026-10-29",
+            "result": "PASS",
+            "passing_hours": 0,
+            "evaluated_hours": 0
+          }
+        ],
+        "North": [
+          {
+            "date": "2026-10-29",
+            "result": "PASS",
+            "passing_hours": 0,
+            "evaluated_hours": 0
+          }
+        ],
+        "Center": [
+          {
+            "date": "2026-10-29",
+            "result": "PASS",
+            "passing_hours": 0,
+            "evaluated_hours": 0
+          }
+        ],
+        "South": [
+          {
+            "date": "2026-10-29",
+            "result": "PASS",
+            "passing_hours": 0,
+            "evaluated_hours": 0
+          }
+        ]
+      },
+      "monthly": {
+        "target": 5,
+        "qualifying_count": 1,
+        "count_target_met": false,
+        "geographic_target_met": true,
+        "monthly_target_met": false
+      }
+    },
+    {
+      "product": "S5-02-09",
+      "date": "2026-10-29",
+      "processing_status": "PROCESSED",
+      "reference_status": "AVAILABLE",
+      "areas": {
+        "Whole AOI": [
+          {
+            "date": "2026-10-29",
+            "result": "FAIL",
+            "passing_hours": 0,
+            "evaluated_hours": 0
+          }
+        ],
+        "North": [
+          {
+            "date": "2026-10-29",
+            "result": "PASS",
+            "passing_hours": 0,
+            "evaluated_hours": 0
+          }
+        ],
+        "Center": [
+          {
+            "date": "2026-10-29",
+            "result": "FAIL",
+            "passing_hours": 0,
+            "evaluated_hours": 0
+          }
+        ],
+        "South": [
+          {
+            "date": "2026-10-29",
+            "result": "FAIL",
+            "passing_hours": 0,
+            "evaluated_hours": 0
+          }
+        ]
+      },
+      "monthly": {
+        "target": 5,
+        "qualifying_count": 1,
+        "count_target_met": false,
+        "geographic_target_met": false,
+        "monthly_target_met": false
+      }
+    },
+    {
+      "product": "S5-02-05",
+      "date": "2026-10-29",
+      "processing_status": "DIAGNOSTIC",
+      "reference_status": "AVAILABLE",
+      "areas": {
+        "Whole AOI": [
+          {
+            "date": "2026-10-29",
+            "result": "FAIL",
+            "passing_hours": 0,
+            "evaluated_hours": 0
+          }
+        ],
+        "North": [
+          {
+            "date": "2026-10-29",
+            "result": "FAIL",
+            "passing_hours": 0,
+            "evaluated_hours": 0
+          }
+        ],
+        "Center": [
+          {
+            "date": "2026-10-29",
+            "result": "UNDEFINED",
+            "passing_hours": 0,
+            "evaluated_hours": 0
+          }
+        ],
+        "South": [
+          {
+            "date": "2026-10-29",
+            "result": "FAIL",
+            "passing_hours": 0,
+            "evaluated_hours": 0
+          }
+        ]
+      },
+      "monthly": {
+        "target": 5,
+        "qualifying_count": 0,
+        "count_target_met": false,
+        "geographic_target_met": false,
+        "monthly_target_met": false
+      }
+    },
+    {
+      "product": "S5-02-02",
+      "date": "2026-10-29",
+      "processing_status": "DIAGNOSTIC",
+      "reference_status": "AVAILABLE",
+      "areas": {
+        "Whole AOI": [
+          {
+            "date": "2026-10-29",
+            "result": "PASS",
+            "passing_hours": 0,
+            "evaluated_hours": 0
+          }
+        ],
+        "North": [
+          {
+            "date": "2026-10-29",
+            "result": "PASS",
+            "passing_hours": 0,
+            "evaluated_hours": 0
+          }
+        ],
+        "Center": [
+          {
+            "date": "2026-10-29",
+            "result": "PASS",
+            "passing_hours": 0,
+            "evaluated_hours": 0
+          }
+        ],
+        "South": [
+          {
+            "date": "2026-10-29",
+            "result": "PASS",
+            "passing_hours": 0,
+            "evaluated_hours": 0
+          }
+        ]
+      },
+      "monthly": {
+        "target": 5,
+        "qualifying_count": 1,
+        "count_target_met": false,
+        "geographic_target_met": true,
+        "monthly_target_met": false
+      }
+    },
+    {
+      "product": "S5-02-10",
+      "date": "2026-10-25",
+      "processing_status": "DIAGNOSTIC",
+      "reference_status": "AVAILABLE",
+      "areas": {
+        "Whole AOI": [
+          {
+            "date": "2026-10-25",
+            "result": "FAIL",
+            "passing_hours": 0,
+            "evaluated_hours": 0
+          }
+        ],
+        "North": [
+          {
+            "date": "2026-10-25",
+            "result": "FAIL",
+            "passing_hours": 0,
+            "evaluated_hours": 0
+          }
+        ],
+        "Center": [
+          {
+            "date": "2026-10-25",
+            "result": "NO_AREA_SUPPORT",
+            "passing_hours": 0,
+            "evaluated_hours": 0
+          }
+        ],
+        "South": [
+          {
+            "date": "2026-10-25",
+            "result": "NO_AREA_SUPPORT",
+            "passing_hours": 0,
+            "evaluated_hours": 0
+          }
+        ]
+      },
+      "monthly": {
+        "target": 5,
+        "qualifying_count": 0,
+        "count_target_met": false,
+        "geographic_target_met": false,
+        "monthly_target_met": false
+      }
+    },
+    {
+      "product": "S5-02-01",
+      "date": "2026-10-25",
+      "processing_status": "REJECTED_QA",
+      "reference_status": "AVAILABLE",
+      "areas": {
+        "Whole AOI": [
+          {
+            "date": "2026-10-25",
+            "result": "REJECTED_QA",
+            "passing_hours": 0,
+            "evaluated_hours": 0
+          }
+        ],
+        "North": [
+          {
+            "date": "2026-10-25",
+            "result": "REJECTED_QA",
+            "passing_hours": 0,
+            "evaluated_hours": 0
+          }
+        ],
+        "Center": [
+          {
+            "date": "2026-10-25",
+            "result": "REJECTED_QA",
+            "passing_hours": 0,
+            "evaluated_hours": 0
+          }
+        ],
+        "South": [
+          {
+            "date": "2026-10-25",
+            "result": "REJECTED_QA",
+            "passing_hours": 0,
+            "evaluated_hours": 0
+          }
+        ]
+      },
+      "monthly": {
+        "target": 5,
+        "qualifying_count": 0,
+        "count_target_met": false,
+        "geographic_target_met": false,
+        "monthly_target_met": false
+      }
+    },
+    {
+      "product": "S5-02-07",
+      "date": "2026-08-01",
+      "processing_status": "OUTSIDE_CAMPAIGN",
+      "reference_status": "UNKNOWN",
+      "areas": {
+        "Whole AOI": [],
+        "North": [],
+        "Center": [],
+        "South": []
+      },
+      "monthly": {
+        "target": 1,
+        "qualifying_count": 0,
+        "count_target_met": false,
+        "geographic_target_met": null,
+        "monthly_target_met": false
+      }
+    },
+    {
+      "product": "S5-02-08",
+      "date": "2026-03-01",
+      "processing_status": "OUTSIDE_CAMPAIGN",
+      "reference_status": "UNKNOWN",
+      "areas": {
+        "Whole AOI": [],
+        "North": [],
+        "Center": [],
+        "South": []
+      },
+      "monthly": {
+        "target": 1,
+        "qualifying_count": 0,
+        "count_target_met": false,
+        "geographic_target_met": null,
+        "monthly_target_met": false
+      }
+    }
+  ]
+}

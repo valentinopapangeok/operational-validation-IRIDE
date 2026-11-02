@@ -28,6 +28,7 @@ def main(argv=None,default_base=None):
     parser.add_argument('--product',help='Restrict to one product, e.g. S5-02-09')
     parser.add_argument('--max-deliveries',type=int,help='Maximum campaign deliveries selected for --run; deterministic product/time order')
     parser.add_argument('--acquired-from',help='Inclusive acquisition timestamp filter for --run; UTC offset required')
+    parser.add_argument('--acquired-before',help='Exclusive acquisition timestamp filter for --run; UTC offset required')
     parser.add_argument('--open-report',action='store_true')
     parser.add_argument('--as-of',help='Landsat search cutoff date YYYY-MM-DD (defaults to today in Europe/Rome)')
     parser.add_argument('--max-scenes',type=int,help='Optional maximum Landsat scenes to download during this launch')
@@ -41,14 +42,17 @@ def main(argv=None,default_base=None):
         parser.error('--max-scenes must be positive')
     if args.max_deliveries is not None and args.max_deliveries<=0:
         parser.error('--max-deliveries must be positive')
-    if (args.max_deliveries is not None or args.acquired_from is not None) and not args.run:
-        parser.error('--max-deliveries and --acquired-from require --run (main.py selects it automatically)')
-    if args.acquired_from is not None:
+    if (args.max_deliveries is not None or args.acquired_from is not None or args.acquired_before is not None) and not args.run:
+        parser.error('--max-deliveries and acquisition filters require --run (main.py selects it automatically)')
+    if args.acquired_from is not None or args.acquired_before is not None:
         from .pipeline import parse_time
         try:
-            parse_time(args.acquired_from)
+            lower=parse_time(args.acquired_from) if args.acquired_from is not None else None
+            upper=parse_time(args.acquired_before) if args.acquired_before is not None else None
         except (ValueError, TypeError):
-            parser.error('--acquired-from requires an ISO timestamp with UTC offset')
+            parser.error('acquisition filters require ISO timestamps with UTC offsets')
+        if lower is not None and upper is not None and lower >= upper:
+            parser.error('--acquired-before must be later than --acquired-from')
     registry = None
     try:
         config = json.loads(args.config.read_text(encoding='utf-8'))
@@ -71,7 +75,8 @@ def main(argv=None,default_base=None):
         if args.run:
             from .operational import execute
             operational_run=execute(registry,config,base,args.workdir,client,args.product,args.as_of,args.max_scenes,
-                                    max_deliveries=args.max_deliveries,acquired_from=args.acquired_from)
+                                    max_deliveries=args.max_deliveries,acquired_from=args.acquired_from,
+                                    acquired_before=args.acquired_before)
         if args.landsat or args.landsat_search:
             from datetime import datetime
             from zoneinfo import ZoneInfo

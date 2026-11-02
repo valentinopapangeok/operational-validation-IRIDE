@@ -13,7 +13,7 @@ def register_adapter(name,adapter):
         raise TypeError('Adapter must implement validate')
     ADAPTERS[name]=adapter
 
-RETRYABLE = {'DISCOVERED','PENDING_CONFIGURATION','PENDING_REFERENCE','REJECTED_QA','ERROR','DIAGNOSTIC','PROCESSED'}
+RETRYABLE = {'DISCOVERED','PENDING_CONFIGURATION','PENDING_REFERENCE','REJECTED_QA','ERROR','DIAGNOSTIC','PROCESSED','NOT_SELECTED'}
 
 
 def parse_time(value):
@@ -47,7 +47,7 @@ def discover(config, base, product=None):
 
 
 def check_outcome(outcome, cfg, campaign):
-    if outcome.status not in {'PENDING_CONFIGURATION','PENDING_REFERENCE','REJECTED_QA','ERROR','COMPLETE','OUTSIDE_CAMPAIGN','DIAGNOSTIC','PROCESSED'}:
+    if outcome.status not in {'PENDING_CONFIGURATION','PENDING_REFERENCE','REJECTED_QA','ERROR','COMPLETE','OUTSIDE_CAMPAIGN','DIAGNOSTIC','PROCESSED','NOT_SELECTED'}:
         raise ValueError('Adapter returned an invalid status')
     if outcome.status != 'COMPLETE':
         return

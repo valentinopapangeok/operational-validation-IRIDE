@@ -21,24 +21,32 @@ def preflight(config,base,product=None,client=None):
     return client
 
 
-def execute(registry,config,base,workdir,client,product=None,as_of=None,max_scenes=None,max_deliveries=None,acquired_from=None):
+def execute(registry,config,base,workdir,client,product=None,as_of=None,max_scenes=None,max_deliveries=None,acquired_from=None,acquired_before=None):
     from .pipeline import parse_time
     if max_deliveries is not None and max_deliveries <= 0:
         raise ValueError('max_deliveries must be positive')
     lower = parse_time(acquired_from) if acquired_from is not None else None
+    upper = parse_time(acquired_before) if acquired_before is not None else None
+    if lower is not None and upper is not None and lower >= upper:
+        raise ValueError('acquired_before must be later than acquired_from')
     from .adapters import register
     from .pipeline import ADAPTERS
     register(config,base)
-    found,errors=inventory_campaign(client,config,product)
+    # Preserve legacy campaign inventory counts for lower-only catch-up runs.
+    # A closed daily window can safely restrict remote partition traversal.
+    found,errors=inventory_campaign(client,config,product,
+                                    start_bound=lower if upper is not None else None,end_bound=upper)
     total_found=len(found)
     found=sorted(found,key=lambda item:(item['product'],item['acquired_at'],item['delivery_id']))
     if lower is not None:
         found=[item for item in found if parse_time(item['acquired_at']) >= lower]
+    if upper is not None:
+        found=[item for item in found if parse_time(item['acquired_at']) < upper]
     if max_deliveries is not None:
         found=found[:max_deliveries]
-    if max_deliveries is not None or lower is not None:
+    if max_deliveries is not None or lower is not None or upper is not None:
         print(f'Selected {len(found)} of {total_found} campaign deliveries for this run',flush=True)
-    summary={'deliveries_found':total_found,'deliveries_selected':len(found),'selection':{'max_deliveries':max_deliveries,'acquired_from':acquired_from},'new':0,'already_complete':0,
+    summary={'deliveries_found':total_found,'deliveries_selected':len(found),'selection':{'max_deliveries':max_deliveries,'acquired_from':acquired_from,'acquired_before':acquired_before},'new':0,'already_complete':0,
              'production_downloaded':0,'production_reused':0,'references_downloaded':0,
              'errors':errors,'pending_configuration':0}
     manifest=Path(config['delivery']['manifest'])
@@ -46,32 +54,43 @@ def execute(registry,config,base,workdir,client,product=None,as_of=None,max_scen
     existing=json.loads(manifest.read_text(encoding='utf-8'))
     entries={(d['product'],d['delivery_id']):d for d in existing}
     active=set();queue=[];receipts=[]
-    for item in found:
-        identity=(item['product'],item['delivery_id'],item['revision']);active.add(identity)
-        d=Delivery(item['product'],item['delivery_id'],item['revision'],item['primary_uri'],item['acquired_at'])
-        summary['new']+=int(registry.discover(d))
-        row=registry.db.execute('SELECT * FROM deliveries WHERE product=? AND delivery_id=? AND revision=?',identity).fetchone()
-        if row['status']=='COMPLETE':
-            summary['already_complete']+=1;continue
-        cfg=config['products'][item['product']]
-        if cfg['adapter']!='landsat_l2' and cfg['adapter'] not in ADAPTERS:
-            registry.record(d,Outcome('PENDING_CONFIGURATION','Product adapter and validation policy are not configured'))
-            summary['pending_configuration']+=1;continue
-        try:
-            receipt=download_item(client,item,workdir)
-            receipts.append(receipt)
-            if receipt['status']!='DOWNLOADED':raise OSError('Production asset download incomplete; see download receipt')
-            reused=all(a.get('reused') for a in receipt['assets'])
-            summary['production_reused' if reused else 'production_downloaded']+=1
-            primary=next(a for a in receipt['assets'] if a['key']==item['primary_key'])
-            entries[(d.product,d.delivery_id)]={'product':d.product,'delivery_id':d.delivery_id,
-                'revision':d.revision,'uri':primary['local_path'],'acquired_at':d.acquired_at}
-            with registry.db:
-                registry.db.execute('UPDATE deliveries SET uri=? WHERE product=? AND delivery_id=? AND revision=?',(primary['local_path'],*identity))
-            queue.append(d)
-        except Exception as exc:
-            registry.record(d,Outcome('ERROR',f'Production download: {type(exc).__name__}: {exc}'))
-            summary['errors'].append({'product':d.product,'delivery_id':d.delivery_id,'stage':'download','reason':str(exc)})
+    # Network transfers run concurrently; all registry writes stay on this thread.
+    from concurrent.futures import ThreadPoolExecutor
+    workers=config['delivery'].get('download_workers',4)
+    if not isinstance(workers,int) or not 1<=workers<=8:
+        raise ValueError('delivery.download_workers must be an integer between 1 and 8')
+    complete={(r['product'],r['delivery_id'],r['revision']) for r in registry.rows(product) if r['status']=='COMPLETE'}
+    with ThreadPoolExecutor(max_workers=workers) as pool:
+        futures={(i['product'],i['delivery_id'],i['revision']):pool.submit(download_item,client,i,workdir)
+                 for i in found if (i['product'],i['delivery_id'],i['revision']) not in complete
+                 and (config['products'][i['product']]['adapter']=='landsat_l2'
+                      or config['products'][i['product']]['adapter'] in ADAPTERS)}
+        for item in found:
+            identity=(item['product'],item['delivery_id'],item['revision']);active.add(identity)
+            d=Delivery(item['product'],item['delivery_id'],item['revision'],item['primary_uri'],item['acquired_at'])
+            summary['new']+=int(registry.discover(d))
+            row=registry.db.execute('SELECT * FROM deliveries WHERE product=? AND delivery_id=? AND revision=?',identity).fetchone()
+            if row['status']=='COMPLETE':
+                summary['already_complete']+=1;continue
+            cfg=config['products'][item['product']]
+            if cfg['adapter']!='landsat_l2' and cfg['adapter'] not in ADAPTERS:
+                registry.record(d,Outcome('PENDING_CONFIGURATION','Product adapter and validation policy are not configured'))
+                summary['pending_configuration']+=1;continue
+            try:
+                receipt=futures[identity].result()
+                receipts.append(receipt)
+                if receipt['status']!='DOWNLOADED':raise OSError('Production asset download incomplete; see download receipt')
+                reused=all(a.get('reused') for a in receipt['assets'])
+                summary['production_reused' if reused else 'production_downloaded']+=1
+                primary=next(a for a in receipt['assets'] if a['key']==item['primary_key'])
+                entries[(d.product,d.delivery_id)]={'product':d.product,'delivery_id':d.delivery_id,
+                    'revision':d.revision,'uri':primary['local_path'],'acquired_at':d.acquired_at}
+                with registry.db:
+                    registry.db.execute('UPDATE deliveries SET uri=? WHERE product=? AND delivery_id=? AND revision=?',(primary['local_path'],*identity))
+                queue.append(d)
+            except Exception as exc:
+                registry.record(d,Outcome('ERROR',f'Production download: {type(exc).__name__}: {exc}'))
+                summary['errors'].append({'product':d.product,'delivery_id':d.delivery_id,'stage':'download','reason':str(exc)})
     # Retain history in SQLite/evidence, but exclude superseded versions from processing.
     dates={(i['product'],i['acquired_at']):i['delivery_id'] for i in found}
     entries={k:v for k,v in entries.items() if dates.get((v['product'],v['acquired_at']),v['delivery_id'])==v['delivery_id']}

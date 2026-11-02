@@ -273,9 +273,12 @@ def campaign_files(client,bucket,product,start,end,prefix='ar_delivery/',depth=0
     return found
 
 
-def inventory_campaign(client,config,product=None):
+def inventory_campaign(client,config,product=None,start_bound=None,end_bound=None):
     start=datetime.fromisoformat(config['campaign']['start'].replace('Z','+00:00'))
     end=datetime.fromisoformat(config['campaign']['end'].replace('Z','+00:00'))
+    if start_bound is not None:start=max(start,start_bound)
+    if end_bound is not None:end=min(end,end_bound)
+    if start>=end:return [],[]
     found=[];errors=[]
     for name in ([product] if product else config['products']):
         try:

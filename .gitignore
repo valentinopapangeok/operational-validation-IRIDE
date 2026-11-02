@@ -6,6 +6,8 @@ local-data/
 *.sqlite*
 *.tif
 *.tiff
+!daily-inputs/**/*.tif
+!daily-inputs/**/*.tiff
 *.npz
 *.part
 *.xlsx
@@ -30,3 +32,8 @@ dist/
 .pytest_cache/
 .matplotlib/
 .DS_Store
+!daily-inputs/
+!daily-inputs/**/
+daily-inputs/**/assets/*
+!daily-inputs/**/assets/*.tif
+!daily-inputs/**/assets/*.tiff

@@ -128,4 +128,26 @@ class SnowAODTests(unittest.TestCase):
             config['aeronet']['wavelength_nm']=None
             self.assertEqual(adapter.validate(d,config['products'][d.product],base).status,'PENDING_CONFIGURATION')
 
+
+    def test_aeronet_downloaded_observations_are_reused_without_http(self):
+        from unittest.mock import patch,MagicMock
+        from s5validation.references.aeronet import refresh_aeronet
+        with tempfile.TemporaryDirectory() as td:
+            base=Path(td);config=self.config(base);config['aeronet']['download_levels']=[15]
+            header='AERONET_Site,Date(dd:mm:yyyy),Time(hh:mm:ss),AOD_550nm,Data_Quality_Level,Site_Latitude(Degrees),Site_Longitude(Degrees)\n'
+            text=header+'fixture,05:10:2026,06:00:00,0.2,lev15,42.5,9.5\n'
+            response=MagicMock();response.text=text;response.content=text.encode()
+            delivery=Delivery('S5-02-09','fixture','revision','unused','2026-10-05T00:00:00+00:00')
+            with patch('requests.get',return_value=response):self.assertEqual(refresh_aeronet(config,base,base,[delivery])['new_downloaded_references'],1)
+            with patch('requests.get',side_effect=AssertionError('reference must be reused')):self.assertEqual(refresh_aeronet(config,base,base,[delivery])['reused_references'],1)
+            # A damaged file is repaired from source instead of being marked reused.
+            original=next((base/'cache/reference/aeronet').glob('*/*/*/observations.txt'));original.write_text('corrupted')
+            with patch('requests.get',return_value=response):self.assertEqual(refresh_aeronet(config,base,base,[delivery])['new_downloaded_references'],1)
+            self.assertEqual(original.read_text(),text)
+            # An explicit source refresh retains the old raw snapshot as well.
+            config['aeronet']['refresh_cached_references']=True
+            newer=text.replace('0.2,','0.3,');response.text=newer;response.content=newer.encode()
+            with patch('requests.get',return_value=response):self.assertEqual(refresh_aeronet(config,base,base,[delivery])['new_downloaded_references'],1)
+            self.assertEqual(len(list((base/'cache/reference/aeronet').glob('*/*/*/observations.txt'))),2)
+
 if __name__=='__main__':unittest.main()

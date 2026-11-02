@@ -70,12 +70,14 @@ def generate(registry, config, workdir, product=None):
             file_note=f"Raster opens: {check['width']} × {check['height']}, {check['bands']} bands. Band 1 raw range: {check['raw_min']} to {check['raw_max']}."
             if p=='S5-02-03' and check['raw_min']==0 and check['raw_max']==0:
                 file_note+=' The latest nighttime radiation raster is all zero on unmasked pixels; select daylight acquisitions for validation.'
-        cards += f'<section><h2>{esc(p)} · {esc(cfg["name"])}</h2><p>{esc(cfg["reference"])}</p><strong>{total} / {prefix}{cfg["sample_target"]} {esc(cfg["sample_unit"])} units</strong><p>{esc(area_text)}</p><p>{esc(label)}</p><p>Thematic target: {esc(target["metric"])} {esc(target["operator"])} {esc(value)}</p><p>Positional target: {esc(positional["operator"])} {positional["percent"]}%. Tolerance in metres: {esc(positional.get("tolerance_m") if positional.get("tolerance_m") is not None else "unresolved")}.</p><p>{esc(cache_text)}</p><p>{esc(file_note)}</p><p class="muted">Adapter: {esc(cfg["adapter"] or "awaiting implementation")}</p><details><summary>Validation plan source cells</summary><p>{esc(origins)}</p><p>{esc(source.get("sample_requirement",{}).get("value",""))}</p><p>{esc(source.get("clarifications",{}).get("value") or "")}</p></details></section>'
+        cards += f'<section><h2>{esc(p)} · {esc(cfg["name"])}</h2><p>{esc(cfg["reference"])}</p><strong>{total} / {prefix}{cfg["sample_target"]} {esc(cfg["sample_unit"])} units</strong><p>{esc(area_text)}</p><p>{esc(label)}</p><p>Thematic target: {esc(target["metric"])} {esc(target["operator"])} {esc(value)}</p><p>Positional target: {esc(positional["operator"])} {positional["percent"]}%. Tolerance in metres: {esc(positional.get("tolerance_m") if positional.get("tolerance_m") is not None else "less than declared product resolution (not measured here)")}.</p><p>{esc(cache_text)}</p><p>{esc(file_note)}</p><p class="muted">Adapter: {esc(cfg["adapter"] or "awaiting implementation")}</p><details><summary>Validation plan source cells</summary><p>{esc(origins)}</p><p>{esc(source.get("sample_requirement",{}).get("value",""))}</p><p>{esc(source.get("clarifications",{}).get("value") or "")}</p></details></section>'
 
     table = ''
     for row in rows:
         table += '<tr>'+''.join(f'<td>{esc(row[k])}</td>' for k in ('product','delivery_id','revision','acquired_at','status','reference_status','reason'))+f'<td><pre>{esc(json.dumps(json.loads(row["metrics"]),indent=2))}</pre></td></tr>'
-    evidence = ''
+    from .hourly_reporting import comparison_html as hourly_comparison_html
+    from .kpi_reporting import comparison_html as kpi_comparison_html
+    evidence = kpi_comparison_html(rows,config,workdir)+hourly_comparison_html(rows,config,workdir)
     operational_path=workdir/'inventory'/'operational_run.json'
     if operational_path.exists():
         operational=json.loads(operational_path.read_text(encoding='utf-8'))
@@ -123,14 +125,14 @@ def generate(registry, config, workdir, product=None):
     evidence += circular_comparison_html(rows)
     campaign = config['campaign']
     blockers = [f'Campaign: {k}' for k,v in campaign.items() if v is None]
-    blockers += ['Thermal rRMSE uses the paired reference mean in Celsius. Remaining decisions include normalization for other products, KPI aggregation, spatial tolerance, reference QA and collocation rules.']
+    blockers += ['Thermal rRMSE uses the paired reference mean in Celsius. Operational KPI dates use the documented monthly counting policy. Positional accuracy is declared relative to product resolution, not measured here; product-specific reference limitations remain recorded in the evidence.']
     doc = f'''<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>S5-02 Validation</title>
 <style>body{{font:15px system-ui;color:#18324b;background:#f3f6fa;margin:0}}main{{max-width:1400px;margin:auto;padding:36px}}h1{{font-size:32px}}h2{{font-size:18px}}.grid{{display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:16px}}section,.notice{{background:white;border:1px solid #d9e3ed;border-radius:12px;padding:20px}}.notice{{border-left:5px solid #d89b32;margin:20px 0}}.muted{{color:#5b7186}}table{{border-collapse:collapse;width:100%;background:white}}td,th{{padding:12px;text-align:left;border-bottom:1px solid #ddd;vertical-align:top}}.scroll{{overflow:auto}}pre{{white-space:pre-wrap;min-width:160px}}strong{{color:#175c87}}</style>
 <main><h1>S5-02 Validation</h1><p>Manually launched · persistent local registry · product adapters configured individually</p><p>Campaign: {esc(campaign['start'] or 'not configured')} → {esc(campaign['end'] or 'not configured')}</p>
-<div class="notice"><b>Methodology decisions still required</b><ul>{''.join('<li>'+esc(b)+'</li>' for b in blockers)}</ul><p>Sample coverage and scientific accuracy are separate requirements. No overall acceptance or three-month compliance is inferred.</p></div>
-<p>Delivery states: {esc(dict(counts)) if counts else 'No deliveries registered'}</p><div class="grid">{cards}</div>
+<div class="notice"><b>Methodology and interpretation</b><ul>{''.join('<li>'+esc(b)+'</li>' for b in blockers)}</ul><p>Sample coverage and scientific accuracy are separate requirements. No overall acceptance or three-month compliance is inferred.</p></div>
+<p>Delivery states: {esc(dict(counts)) if counts else 'No deliveries registered'}</p><details><summary>Legacy reference-sample accounting — separate from operational KPI dates</summary><div class="grid">{cards}</div></details>
 <h2>Reference evidence and comparisons</h2>{evidence}<h2>Delivery registry</h2><div class="scroll"><table><thead><tr>{''.join('<th>'+x+'</th>' for x in ['Product','Delivery','Revision','Acquisition','Validation','Reference','Reason','Metrics'])}</tr></thead><tbody>{table}</tbody></table></div>
-<p class="muted">Configuration source: {esc(config['methodology_source'])}. Diagnostic pairs and plots are available above when reference QA yields sufficient coverage. Diagnostic comparisons do not count towards accepted campaign samples.</p></main></html>'''
+<p class="muted">Configuration source: {esc(config['methodology_source'])}. Product 04 uncertainty-adjusted lower-bound dates are reported as operative KPI evidence, while raw gauge comparisons and other diagnostic comparisons remain separate from accepted campaign samples and overall contractual acceptance.</p></main></html>'''
     report = workdir/'report'/'validation_report.html'
     report.parent.mkdir(parents=True,exist_ok=True)
     temp = report.with_suffix('.tmp')

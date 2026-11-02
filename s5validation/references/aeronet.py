@@ -79,6 +79,18 @@ def refresh_aeronet(config,base,workdir,deliveries):
             params={'year':d.year,'month':d.month,'day':d.day,'year2':d.year,'month2':d.month,'day2':d.day,
                 'lat1':bottom,'lon1':left,'lat2':top,'lon2':right,'AVG':10,'if_no_html':1,f'AOD{level}':1}
             try:
+                # A verified usable snapshot is the validation reference. Reuse
+                # it without HTTP; unavailable quality levels can still mature.
+                prior_receipt=next((r for r in records.get(day,{}).get('receipts',[]) if r.get('level')==level/10),None)
+                if (not policy.get('refresh_cached_references',False) and prior_receipt and
+                    prior_receipt.get('status')=='AVAILABLE' and prior_receipt.get('parameters')==params and
+                    prior_receipt.get('url')==URL and Path(prior_receipt['file']).is_file() and
+                    digest(Path(prior_receipt['file']))==prior_receipt['sha256']):
+                    observations=parse_observations(Path(prior_receipt['file']).read_text(encoding='utf-8'),day,level)
+                    observations=[o for o in observations if aoi.covers(Point(o['longitude'],o['latitude']))]
+                    receipt=dict(prior_receipt,observations_inside_aoi=len(observations));receipt.pop('refresh_failed',None)
+                    receipts.append(receipt);by_level[str(level)]=observations;reused+=1
+                    continue
                 response=requests.get(URL,params=params,timeout=(15,90));response.raise_for_status()
                 text=response.text
                 observations=parse_observations(text,day,level)
@@ -88,8 +100,8 @@ def refresh_aeronet(config,base,workdir,deliveries):
                 folder=workdir/'cache/reference/aeronet'/day/f'AOD{level}'/revision
                 folder.mkdir(parents=True,exist_ok=True)
                 path=folder/'observations.txt'
-                if not path.exists():
-                    path.write_bytes(response.content);downloaded+=1
+                if not path.exists() or digest(path)!=revision:
+                    partial=path.with_suffix('.part');partial.write_bytes(response.content);partial.replace(path);downloaded+=1
                 else:reused+=1
                 receipt={'level':level/10,'parameters':params,'url':URL,'sha256':digest(path),
                     'file':str(path.resolve()),'retrieved_at':datetime.now(timezone.utc).isoformat(),

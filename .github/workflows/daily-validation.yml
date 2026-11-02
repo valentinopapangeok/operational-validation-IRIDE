@@ -1,0 +1,101 @@
+name: Validate pushed S5 products
+on:
+  push:
+    branches: [main]
+    paths: ['daily-inputs/**']
+  workflow_dispatch:
+    inputs:
+      manifest:
+        description: Repository-relative daily-inputs/YYYY-MM-DD/S5-02-NN/manifest.json
+        required: true
+        type: string
+permissions:
+  contents: read
+concurrency:
+  group: s5-product-validation
+  cancel-in-progress: false
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    env:
+      BEFORE_SHA: ${{ github.event.before }}
+      SELECTED_MANIFEST: ${{ inputs.manifest }}
+    steps:
+      - uses: actions/checkout@v4
+        env:
+          GIT_LFS_SKIP_SMUDGE: '1'
+        with:
+          fetch-depth: 0
+          lfs: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+          cache-dependency-path: pyproject.toml
+      - name: Install scientific dependencies
+        run: python -m pip install -e '.[scientific]'
+      - name: Select changed product packages
+        run: |
+          if test -n "$SELECTED_MANIFEST"; then
+            printf '%s\n' "$SELECTED_MANIFEST" > "$RUNNER_TEMP/changed_paths.txt"
+          elif git cat-file -e "${BEFORE_SHA}^{commit}" 2>/dev/null; then
+            git diff --name-only --diff-filter=ACMR "$BEFORE_SHA" "$GITHUB_SHA" -- daily-inputs > "$RUNNER_TEMP/changed_paths.txt"
+          else
+            git ls-files daily-inputs > "$RUNNER_TEMP/changed_paths.txt"
+          fi
+      - name: Fetch only selected product assets from Git LFS
+        run: |
+          git lfs version
+          INCLUDE=$(python - <<'PY'
+          import os
+          from pathlib import Path
+          paths=(Path(os.environ['RUNNER_TEMP'])/'changed_paths.txt').read_text().splitlines()
+          roots=set()
+          for raw in paths:
+              parts=Path(raw).parts
+              if len(parts)>=3 and parts[0]=='daily-inputs':
+                  roots.add('/'.join(parts[:3])+'/assets/*')
+          print(','.join(sorted(roots)))
+          PY
+          )
+          if test -n "$INCLUDE"; then git lfs pull --include "$INCLUDE" --exclude ""; fi
+      - name: Install provider credentials for this run
+        env:
+          DOWNLOADER_ENV: ${{ secrets.S5_DOWNLOADER_ENV }}
+        run: |
+          python - <<'PY'
+          import os
+          from pathlib import Path
+          target=Path(os.environ['RUNNER_TEMP'])/'downloaders.env'
+          target.write_text(os.environ.get('DOWNLOADER_ENV',''),encoding='utf-8')
+          target.chmod(0o600)
+          PY
+      - name: Restore pending MeteoHub request IDs
+        uses: actions/cache/restore@v4
+        with:
+          path: ${{ runner.temp }}/pending-request-state
+          key: s5-request-state-${{ github.run_id }}
+          restore-keys: s5-request-state-
+      - name: Initialize request metadata directory
+        run: mkdir -p "$RUNNER_TEMP/pending-request-state"
+      - name: Fetch references and validate changed packages
+        run: |
+          python tools/run_pushed_inputs.py --changed-paths "$RUNNER_TEMP/changed_paths.txt" \
+            --downloader-credentials-file "$RUNNER_TEMP/downloaders.env" \
+            --request-state-dir "$RUNNER_TEMP/pending-request-state" \
+            --workdir "$RUNNER_TEMP/s5-pushed-validation"
+      - name: Retain pending request IDs only
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: ${{ runner.temp }}/pending-request-state
+          key: s5-request-state-${{ github.run_id }}
+      - name: Remove downloaded references and products from runner
+        if: always()
+        run: |
+          test -n "$RUNNER_TEMP"
+          rm -rf "$RUNNER_TEMP/s5-pushed-validation"
+      - name: Remove provider credentials
+        if: always()
+        run: rm -f "$RUNNER_TEMP/downloaders.env"

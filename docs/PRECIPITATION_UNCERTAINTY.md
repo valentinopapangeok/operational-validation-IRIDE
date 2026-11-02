@@ -1,0 +1,23 @@
+# Product 04 gauge-representativeness adjustment: operative method
+
+This is the **operative product 04 date-selection method** adopted on 30 October 2026. It keeps the raw rRMSE and its 20% threshold and adds a gauge-only spatial-variability estimate to calculate an optimistic lower bound on product error, following the direct RMSE bound in Li et al. (2026), Section 2.2. A lower bound below 20% means product error *may* be below 20%; it does not prove that it is. Every report must disclose this distinction.
+
+## Operative rule
+
+1. Use only QA-valid hourly gauges with positive measured rain and exact UTC-hour alignment. Match each gauge to its containing product pixel. Keep the original raw product–gauge comparison and its provenance.
+2. Fit the existing relative, nonnegative 0–5 km gauge semivariogram using gauge pairs only. For a target date, **exclude that date** from training. Bootstrap the remaining UTC dates as blocks, 500 times with fixed seed `20261030`; preserve the model's per-hour weighting and top-1% squared-difference cap.
+3. Integrate each bootstrap model across the actual product pixel geometry to obtain a point-to-pixel gauge-error scale at each station. Use the **20th percentile** of the bootstrap scales as a one-sided 80% lower confidence estimate of reference uncertainty. This is a declared confidence choice, not a fraction selected to achieve a date count. It is distinct from the independent requirement that the point-gauge holdout intervals cover at least 80% in each sub-AOI.
+4. For each rainy gauge-hour, report raw individual error `100 |P − G| / G` and adjusted theoretical lower bound `max(0, raw error − 100 U_low / G)`, where `U_low` is the gauge-error scale in millimetres. Keep the raw and adjusted values side by side.
+5. Keep **one gauge per distinct product pixel**, selected by minimum mean distance to the pixel's 5×5 integration nodes, independently of product error. An hour qualifies in a sub-AOI only if it has at least **50 distinct evaluable rainy pixels**, mean selected-gauge rain of at least **1 mm**, and at least **50%** of selected pixels have an adjusted lower bound at or below **20%**.
+6. In the **same hour**, assign evaluable and passing selected pixels to fixed **25 km EPSG:3035 tiles** with origin `(0, 0)`. Require passing pixels in at least **50% of the tiles containing evaluable rainy pixels**. Report the passing/evaluable tile counts, and repeat the spread calculation with both grid axes shifted 12.5 km as a sensitivity check. This measures spread through the available network, not continuous area coverage.
+7. A sub-AOI/date qualifies only if **one same hour** meets all the above conditions. Count a national date once even if several sub-AOIs qualify. Never combine passing gauges from different hours to create an hour pass.
+
+## Initial retrospective result
+
+On the cached October 2026 sample, this stricter rule yields **11 qualifying sub-AOI-hours on five distinct national dates**: North 4 hours on 3 dates (7, 8, 21 October), Center 5 hours on 4 dates (7, 8, 9, 10 October), and South 2 hours on 2 dates (8, 9 October). All 11 hours pass the 50% tile-spread gate: the lowest fixed-grid spread is 66.7%, and the lowest shifted-grid spread is 59.5%. The calculation and full station-hour results are under `validation_app/rain_gauge_geometry_20261028/` in the local workspace; this repository does not contain the private reference data.
+
+These rules were selected after examining this October sample. The October count is therefore retrospective evidence under the now-adopted method, not an independent prospective test or proof of contractual accuracy. Point-gauge holdout coverage exceeds 80% by sub-AOI, but this does not verify point-to-pixel variance. Nearby pixels can still be correlated, so 50 locations are not 50 independent samples. Future months should apply the unchanged method and be reported separately. Report mean rain, selected-pixel counts, tile spread and all raw scores with every qualifying hour.
+
+The implementation is `s5validation/precipitation_uncertainty.py`, configured by `precipitation.uncertainty_adjustment` in `config/validation.json`. It rebuilds the decisions from checksum-verified cached hourly matches and raster receipts on each report run, including the expanded October rain campaign. `report/precipitation_uncertainty.json` retains selected-pixel raw and adjusted evidence, hourly gates, date outcomes and monthly counts.
+
+Reference: Li et al. (2026), “Refine the Uncertainty of GPM IMERG Precipitation Product Accounting for the Inherent Error From Rain Gauges Estimations,” https://doi.org/10.1029/2025EA004745.

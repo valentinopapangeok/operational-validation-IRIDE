@@ -22,9 +22,32 @@ def register(config,base):
     if 'aeronet_circular' in selected:
         ADAPTERS['aeronet_circular']=CircularAODAdapter(config,base)
         REFERENCE_REFRESHERS['aeronet_circular']=refresh_aeronet
+    if 'era5_direct' in selected:
+        from .solar_era5 import ERA5DirectAdapter
+        from .references.era5_direct import refresh_era5_direct
+        ADAPTERS['era5_direct']=ERA5DirectAdapter(config,base)
+        REFERENCE_REFRESHERS['era5_direct']=refresh_era5_direct
     if 'era5_land_ssrd' in selected:
         ADAPTERS['era5_land_ssrd']=SolarAdapter(config,base)
         REFERENCE_REFRESHERS['era5_land_ssrd']=refresh_era5_land
     if 'cams_bni' in selected:
         ADAPTERS['cams_bni']=SolarBNIAdapter(config,base)
         REFERENCE_REFRESHERS['cams_bni']=refresh_cams_solar
+
+    if 'gosat_monthly' in selected:
+        from .gosat import GOSATAdapter
+        from .references.gosat import refresh_gosat
+        ADAPTERS['gosat_monthly']=GOSATAdapter(config,base)
+        REFERENCE_REFRESHERS['gosat_monthly']=refresh_gosat
+
+    if 'msg_cloud_hourly' in selected:
+        from .cloud import CloudAdapter
+        from .references.msg_cloud import refresh_msg_cloud
+        ADAPTERS['msg_cloud_hourly']=CloudAdapter(config,base)
+        REFERENCE_REFRESHERS['msg_cloud_hourly']=refresh_msg_cloud
+
+    if 'regional_gauges_hourly' in selected:
+        from .precipitation import PrecipitationAdapter
+        from .references.regional_gauges import refresh_regional_gauges
+        ADAPTERS['regional_gauges_hourly']=PrecipitationAdapter(config,base)
+        REFERENCE_REFRESHERS['regional_gauges_hourly']=refresh_regional_gauges

@@ -237,8 +237,8 @@
     "S5-02-03": {
       "name": "Solar Radiation",
       "kind": "continuous",
-      "adapter": "cams_bni",
-      "reference": "CAMS all-sky hourly direct-normal irradiation (BNI); provisional equivalent-observable cross-check; ERA5-Land plan deviation",
+      "adapter": "era5_direct",
+      "reference": "ERA5 hourly single-levels FDIR converted to direct-normal hourly exposure (operative reference-only method)",
       "sample_unit": "hourly production",
       "sample_target": 30,
       "target_type": "proposed_minimum",
@@ -324,12 +324,17 @@
         "mae",
         "bias",
         "r2"
-      ]
+      ],
+      "reporting_unit": "hourly production",
+      "reporting_decision": {
+        "authority": "User clarification on 2026-10-20",
+        "rule": "Report each UTC production hour independently and count passing/evaluated hours; no daily KPI pooling. Workbook sampling uses 30 hourly productions and does not define campaign KPI aggregation."
+      }
     },
     "S5-02-04": {
       "name": "Precipitation",
       "kind": "precipitation",
-      "adapter": null,
+      "adapter": "regional_gauges_hourly",
       "reference": "Regional gauges: Emilia-Romagna, Lazio, Sicily",
       "sample_unit": "hourly production",
       "sample_target": 30,
@@ -421,7 +426,12 @@
         "Emilia-Romagna",
         "Lazio",
         "Sicily"
-      ]
+      ],
+      "reporting_unit": "hourly production",
+      "reporting_decision": {
+        "authority": "User clarification on 2026-10-20",
+        "rule": "Report each UTC production hour independently and count passing/evaluated hours; no daily KPI pooling. Workbook sampling uses 30 hourly productions and does not define campaign KPI aggregation."
+      }
     },
     "S5-02-05": {
       "name": "Snow Cover",
@@ -517,7 +527,7 @@
     "S5-02-06": {
       "name": "Cloud Cover",
       "kind": "binary",
-      "adapter": null,
+      "adapter": "msg_cloud_hourly",
       "reference": "MSG/SEVIRI Cloud Mask",
       "sample_unit": "hourly production",
       "sample_target": 30,
@@ -541,7 +551,7 @@
       "minimum_valid_pairs": null,
       "minimum_valid_overlap_fraction": null,
       "reference_quality_policy": null,
-      "units": null,
+      "units": "binary cloud/no cloud",
       "gosat_min_italy_coverage": null,
       "plots": [
         "confusion_matrix",
@@ -603,12 +613,17 @@
         "accuracy",
         "iou",
         "false_alarm_ratio"
-      ]
+      ],
+      "reporting_unit": "hourly production",
+      "reporting_decision": {
+        "authority": "User clarification on 2026-10-20",
+        "rule": "Report each UTC production hour independently and count passing/evaluated hours; no daily KPI pooling. Workbook sampling uses 30 hourly productions and does not define campaign KPI aggregation."
+      }
     },
     "S5-02-07": {
       "name": "Methane",
       "kind": "continuous",
-      "adapter": null,
+      "adapter": "gosat_monthly",
       "reference": "GOSAT FTS L3 CH4",
       "sample_unit": "month",
       "sample_target": 3,
@@ -700,7 +715,7 @@
     "S5-02-08": {
       "name": "CO2",
       "kind": "continuous",
-      "adapter": null,
+      "adapter": "gosat_monthly",
       "reference": "GOSAT FTS L3 CO2",
       "sample_unit": "month",
       "sample_target": 3,
@@ -1193,10 +1208,11 @@
       "expected_effective_date": "2026-10-20",
       "authority": "User declaration on 2026-10-19",
       "note": "Corrected production processing expected from this date; do not relabel older deliveries or infer deployment from acquisition date alone."
-    }
+    },
+    "refresh_cached_references": false
   },
   "solar": {
-    "method_version": "cams-bni-hourly-v1",
+    "method_version": "era5-direct-normal-reference-v3-operative",
     "product_quantity": "direct_normal",
     "product_unit": "Wh/m2",
     "bounds": [
@@ -1222,6 +1238,182 @@
     "minimum_toa_wh_m2": 100.0,
     "minimum_reference_bni_wh_m2": 50.0,
     "minimum_direct_transmission": 0.5,
-    "allow_incompatible_ssrd_crosscheck": false
+    "allow_incompatible_ssrd_crosscheck": false,
+    "era5_direct": {
+      "minimum_solar_elevation_degrees": 10,
+      "minimum_reference_wh_m2": 20,
+      "minimum_cell_coverage": 0.9,
+      "enable_reference_conversion": true
+    },
+    "method_acceptance": {
+      "status": "operative",
+      "authority": "explicit_user_instruction_2026-10-21",
+      "method_id": "era5-direct-normal-reference-v3-operative",
+      "scope": "operational thematic validation; reference-only conversion with documented constant-DNI hourly assumption",
+      "reference_dataset": "reanalysis-era5-single-levels",
+      "uncertainty_policy": "retain approximate_geometry and sensitivity estimates; numerical acceptance uses central converted reference; thresholds unchanged"
+    }
+  },
+  "gosat": {
+    "method_version": "gosat-monthly-v1",
+    "version": "03.05",
+    "fields": {
+      "CH4": "Data/mixingRatio/XCH4",
+      "CO2": "Data/mixingRatio/XCO2"
+    },
+    "reference_scales": {
+      "CH4": 1000.0,
+      "CO2": 1.0
+    },
+    "product_scales": {
+      "CH4": 1.0,
+      "CO2": 1.0
+    },
+    "minimum_cell_coverage": 0.0,
+    "mask_value": null,
+    "month_offset": 0
+  },
+  "cloud": {
+    "method_version": "msg-cloud-hourly-v1",
+    "scan_minutes": [
+      0,
+      15,
+      30,
+      45
+    ],
+    "minimum_scans": 3,
+    "cloud_fraction_threshold": 0.5,
+    "minimum_pairs": 30
+  },
+  "precipitation": {
+    "method_version": "regional-gauges-hourly-v3-rainy-only",
+    "product_unit": "mm",
+    "normalization": "mean_reference",
+    "rain_threshold_mm": 0.2,
+    "minimum_pairs": 1,
+    "pixel_support_minimum_locations": 3,
+    "pixel_support_minimum_separation_m": 100,
+    "networks": [
+      "simnbo",
+      "simnpr",
+      "dpcn-lazio",
+      "dpcn-sicilia",
+      "dpcn-basilicata",
+      "dpcn-bolzanoboze",
+      "dpcn-calabria",
+      "dpcn-campania",
+      "dpcn-liguria",
+      "dpcn-lombardia",
+      "dpcn-marche",
+      "dpcn-molise",
+      "dpcn-piemonte",
+      "dpcn-puglia",
+      "dpcn-sardegna",
+      "dpcn-umbria",
+      "dpcn-veneto",
+      "open-trentino",
+      "sir-toscana",
+      "arpafvg"
+    ],
+    "hours_per_request": 1,
+    "maximum_extract_mb": 128,
+    "status": "operative_uncertainty_lower_bound",
+    "unit_authority": "Processing code converts input rain rates to mm/hour and accumulates the nominal hour; generic delivery XML is not a unit confirmation.",
+    "archive_verified_remote_extracts": false,
+    "screening": {
+      "enabled": true,
+      "rain_threshold_mm": 0.2,
+      "window_pixels": 3,
+      "control_fraction": 0.1,
+      "control_seed": "rain04-controls-v1",
+      "selection_basis": "Product rain near catalogued gauges; deterministic product-dry controls; independent of comparison errors. Screening neighbourhood does not alter the one-pixel comparison.",
+      "bootstrap_missing_networks": true
+    },
+    "network_regions": {
+      "Emilia-Romagna": [
+        "simnbo",
+        "simnpr"
+      ],
+      "Lazio": [
+        "dpcn-lazio"
+      ],
+      "Sicily": [
+        "dpcn-sicilia"
+      ],
+      "Basilicata": [
+        "dpcn-basilicata"
+      ],
+      "Bolzano": [
+        "dpcn-bolzanoboze"
+      ],
+      "Calabria": [
+        "dpcn-calabria"
+      ],
+      "Campania": [
+        "dpcn-campania"
+      ],
+      "Liguria": [
+        "dpcn-liguria"
+      ],
+      "Lombardia": [
+        "dpcn-lombardia"
+      ],
+      "Marche": [
+        "dpcn-marche"
+      ],
+      "Molise": [
+        "dpcn-molise"
+      ],
+      "Piemonte": [
+        "dpcn-piemonte"
+      ],
+      "Puglia": [
+        "dpcn-puglia"
+      ],
+      "Sardegna": [
+        "dpcn-sardegna"
+      ],
+      "Umbria": [
+        "dpcn-umbria"
+      ],
+      "Veneto": [
+        "dpcn-veneto"
+      ],
+      "Trentino": [
+        "open-trentino"
+      ],
+      "Toscana": [
+        "sir-toscana"
+      ],
+      "Friuli-Venezia Giulia": [
+        "arpafvg"
+      ]
+    },
+    "reference_condition": "positive_gauge_rainfall",
+    "method_authority": "Explicit user decisions 2026-10-22 and 2026-10-30: positive-rainfall gauge hours; unchanged raw 20% rRMSE; separate operational uncertainty-adjusted lower-bound pixel rule.",
+    "uncertainty_adjustment": {
+      "status": "operative",
+      "method_id": "gauge-only-date-held-out-q20-pixel-tile-v1",
+      "additional_evidence_workdirs": ["../rain_rainy_only_campaign_20261022", "../../validation_app/rain_rainy_only_campaign_20261022"],
+      "bootstrap_replicates": 500,
+      "bootstrap_seed": 20261030,
+      "lower_sigma_quantile": 0.2,
+      "error_limit_pct": 20,
+      "minimum_evaluable_pixels": 50,
+      "minimum_mean_rain_mm": 1,
+      "minimum_passing_fraction": 0.5,
+      "tile_m": 25000,
+      "minimum_tile_spread": 0.5
+    }
+  },
+  "operational_kpi_policy": {
+    "daily_monthly_target": 5,
+    "monthly_product_monthly_target": 1,
+    "minimum_dates_per_sub_aoi_per_month": 1,
+    "hourly_minimum_passing_hours_per_date": 1,
+    "date_counting": "one distinct UTC date across all sub-AOIs; thematic pass in at least one sub-AOI",
+    "monthly_product_geography": "available reference-supported AOI; no full-distribution guarantee",
+    "authority": "explicit_user_decisions_2026-10-21",
+    "aggregation": "daily pairs pooled within date and sub-AOI; hourly scores never pooled between hours; use all eligible pairs including failures"
   }
 }

@@ -56,6 +56,7 @@ def smoke(workdir):
         print('PASS: synthetic thermal adapter, QA, native-cell aggregation, metrics, plots and registry')
         # Exercise product 03 through the same registry and report, with no provider access.
         from s5validation.downloads import digest
+        config['products']['S5-02-03']['adapter']='cams_bni'  # This fixture exercises CAMS; ERA5 has separate offline integration tests.
         solar_index={'sites':{}}
         for ix in (10,11):
             for iy in (43,44):

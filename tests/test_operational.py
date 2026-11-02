@@ -156,4 +156,24 @@ class OperationalTests(unittest.TestCase):
                 with self.assertRaises(SystemExit) as caught:main(arguments)
                 self.assertEqual(caught.exception.code,2)
 
+
+    def test_parallel_transfers_keep_validation_on_registry_thread(self):
+        import threading
+        from s5validation.operational import download_item as actual_download
+        barrier=threading.Barrier(2);transfer_threads=set();main_thread=threading.get_ident()
+        def transfer(*args):
+            transfer_threads.add(threading.get_ident());barrier.wait(timeout=5)
+            return actual_download(*args)
+        class Adapter:
+            def validate(self,d,cfg,workdir):
+                if threading.get_ident()!=main_thread:raise AssertionError('Registry validation escaped main thread')
+                return Outcome('PENDING_REFERENCE','fixture','NOT_AVAILABLE')
+        with tempfile.TemporaryDirectory() as directory,patch.dict(ADAPTERS,{'fixture':Adapter()},clear=True),patch('s5validation.operational.download_item',side_effect=transfer):
+            base=Path(directory);(base/'deliveries.json').write_text('[]')
+            registry=Registry(base/'validation.db');self.addCleanup(registry.close)
+            cfg=self.config();cfg['delivery']['download_workers']=2
+            result=execute(registry,cfg,base,base,self.storage())
+            self.assertEqual(result['delivery_states'],{'PENDING_REFERENCE':2})
+            self.assertEqual(len(transfer_threads),2);self.assertNotIn(main_thread,transfer_threads)
+
 if __name__=='__main__':unittest.main()

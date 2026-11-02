@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "product": "S5-02-05",
+  "date": "2026-10-29",
+  "acquired_at": "2026-10-29T00:00:00+00:00",
+  "delivery_id": "IRIDE-S_S5-02-05_20261029_V1",
+  "revision": "4871a9fbd86a449e76c7a327499a1af8f44a9b20f83b52a439838dd2e86790ea",
+  "primary_path": "assets/IRIDE-S_S5-02-05_20261029_V1.tif",
+  "assets": [
+    {
+      "path": "assets/IRIDE-S_S5-02-05_20261029_V1.tif",
+      "bytes": 694543,
+      "sha256": "1438a0b3132c2f0899766e47d6dca74c0e3364de00286f9ec83e2f5150a4466e"
+    }
+  ]
+}
